@@ -1,5 +1,7 @@
 export function Chip({sentence} : {sentence: string}) {
     return (
-        <div>{sentence}</div>
+        <div className="Chip">
+            <span className="font-bold text-3xl">{sentence}</span>
+        </div>
     );
 }
