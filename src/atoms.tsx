@@ -1,10 +1,10 @@
 import { atom } from "recoil";
 
 export interface IChip {
-    sentence: string;
+    content: string;
 }
 
 export const sentenceState = atom<IChip[]>({
-    key: "sentence",
+    key: "unique_content",
     default: [],
 });
