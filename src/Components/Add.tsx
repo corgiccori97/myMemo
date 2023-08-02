@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { sentenceState } from '../atoms';
 import { useRecoilState } from 'recoil';
@@ -15,12 +15,7 @@ export default function Addbtn() {
         const newChip = { content: newSentence, index: chipNumber++ };
         setValue("content", "");
         setSentenceList([...sentenceList, newChip]);
-        console.log(sentenceState);
     }
-
-    useEffect(() => {
-        console.log(sentenceList);
-    }, [sentenceList]);
 
     const clickedAdd = () => setAdd(prev => !prev);
     return (
