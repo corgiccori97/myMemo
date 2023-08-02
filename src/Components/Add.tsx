@@ -12,7 +12,8 @@ export default function Addbtn() {
 
     const onSubmit = (data:any) => {
         const newSentence = data.content;
-        const newChip = { content: newSentence, index: chipNumber++ };
+        const newChip = { content: newSentence, index: chipNumber };
+        chipNumber += 1;
         setValue("content", "");
         setSentenceList([...sentenceList, newChip]);
     }
