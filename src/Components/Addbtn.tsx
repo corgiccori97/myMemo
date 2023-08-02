@@ -1,22 +1,21 @@
-
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { sentenceState } from '../atoms';
 import { useRecoilState } from 'recoil';
-import { Chip } from './Chip';
-
+import ChipList from './ChipList';
 
 export default function Addbtn() {
     const [add, setAdd] = useState(false);
-    const { register, watch, handleSubmit, setValue } = useForm();
+    const { register, handleSubmit, setValue } = useForm();
     const [sentenceList, setSentenceList] = useRecoilState(sentenceState);
+    let chipNumber = 0;
 
     const onSubmit = (data:any) => {
         const newSentence = data.content;
-        const newChip = { content: newSentence };
-        setAdd(prev => !prev);
+        const newChip = { content: newSentence, index: chipNumber++ };
         setValue("content", "");
         setSentenceList([...sentenceList, newChip]);
+        console.log(sentenceState);
     }
 
     useEffect(() => {
@@ -38,11 +37,7 @@ export default function Addbtn() {
             </>
         )
         : <></>}
-        <ul>
-            { sentenceList.map((sentence, index) => (
-                <Chip key={index} sentence={sentence.content} />
-            ))}
-        </ul>
+        <ChipList chips={sentenceList} />
         </>
     );
 

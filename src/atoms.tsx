@@ -2,6 +2,7 @@ import { atom } from "recoil";
 
 export interface IChip {
     content: string;
+    index: number;
 }
 
 export const sentenceState = atom<IChip[]>({
