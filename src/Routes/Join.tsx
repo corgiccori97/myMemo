@@ -18,17 +18,32 @@ function Join() {
     } = useForm<UserInfo>({
         mode: "onChange",
     });
-    const onValid = (data:UserInfo) => {
-        console.log("Valid");
+    const onSubmit = async (data:UserInfo) => {
+        try {
+            const response = await fetch('/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            if (response.ok) {
+                console.log("ok")
+            } else {
+                console.log(response)
+            } 
+        }
+        catch (error) {
+            console.log("error")
+        }
     };
-    const onInValid = (data:FieldErrors) => {
-        console.log("errors");
-    };
+
     return (
         <>
         <form 
         className="w-1/2 mx-auto"
-        onSubmit={handleSubmit(onValid, onInValid)}>
+        onSubmit={handleSubmit(onSubmit)}
+        name="userInfo">
             <h1 className="font-extrabold text-gray-800">회원가입하고 내 메모를 저장하세요</h1>
             <span className="font-body text-2xl">JOIN US!</span>
             <hr />
@@ -37,6 +52,7 @@ function Join() {
                 <label
                 className="font-body text-yellow-300 mt-2">
                     EMAIL
+                    <br />
                     <input {...register("email", {
                         required: "*필수항목입니다.",
                     })}
@@ -49,6 +65,7 @@ function Join() {
                 {/* 비밀번호 */}
                 <label className="font-body text-yellow-300">
                     PASSWORD
+                    <br />
                     <input {...register("password", {
                         required: "*필수항목입니다.", 
                         minLength: 8
@@ -56,20 +73,21 @@ function Join() {
                     type="password"
                     name="password"
                     className="text-gray-800"
-                    // placeholder="비밀번호" 
+                    placeholder="********" 
                     /> 
                 </label>
                 {errors.password && errors.password.type === "minLength" && <span className="text-red-600 text-xs">8자 이상으로 입력해주세요</span>}
                 {/* 비밀번호 확인 */}
                 <label className="font-body text-yellow-300">
-                    CONFIRM
+                    PASSWORD CONFIRM
+                    <br />
                     <input {...register("passwordConfirm", {
                         required: "*필수항목입니다",
                     })} 
                     type="password" 
                     name="passwordConfirm"
                     className="text-gray-800"
-                    // placeholder="비밀번호 확인"
+                    placeholder="********"
                     /> 
                 </label>
                 { watch("password") !== watch("passwordConfirm") ? <span className="text-red-600 text-xs">비밀번호가 일치하지 않습니다.</span> : ""}

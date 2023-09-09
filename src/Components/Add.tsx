@@ -24,27 +24,21 @@ export default function Addbtn() {
         <button
         type="button"
         onClick={() => clickedAdd()}
-        // shadow-[0_4px_9px_-4px_#3b71ca]
         className="rounded bg-primary px-6 pb-2 pt-2.5 text-6xl font-medium uppercase leading-normal text-yellow-300 transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] font-body"
-        data-te-toggle="modal"
-        data-te-target="addModal"
-        data-te-ripple-init
-        data-te-ripple-color="light"
+        data-modal-target="addModal"
+        data-modal-toggle="addModal"
         >
-            + Add your memo, or everything +
+            ADDDDDDDDDD SOMETHING
         </button>
         {add ? (
             // 배경
             <div
+            id="addModal"
             className="fixed left-0 top-0 h-full w-screen p-2 z-[1055] overflow-y-auto overflow-x-hidden outline-none bg-slate-50 opacity-90">
                 {/* form 컨테이너 */}
                 <div 
-                id="addModal"
                 className="w-1/2 h-3/4 rounded-xl m-auto justify-center items-center z-10 p-5 bg-[#fffffb]"
                 data-modal-hide="authentication-modal"
-                data-te-backdrop="static"
-                data-te-keyboard="false"
-                tabIndex={-1}
                 aria-hidden="true"
                 aria-labelledby="addModalLabel">
                     {/* Modal title: 제목, 닫기 버튼 */}
