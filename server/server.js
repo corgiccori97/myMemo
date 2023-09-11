@@ -3,7 +3,7 @@ const PORT = 3001;
 const express = require('express');
 const cors = require('cors');
 // const bcrypt = require('bcrypt');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const app = express();
 
 const db = mysql.createPool({
@@ -26,7 +26,8 @@ app.get('/', (req, res) => {
     res.send("코딩중")
 })
 
-app.post('/join', (req, res) => {
+app.post('/', (req, res) => {
+    console.log(req.body);
     const { email, password } = req.body;
     const query = "INSERT INTO users (email, password) VALUES (?, ?)";
     db.query(query, [email, password], (err, result) => {

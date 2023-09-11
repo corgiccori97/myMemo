@@ -20,7 +20,7 @@ function Join() {
     });
     const onSubmit = async (data:UserInfo) => {
         try {
-            const response = await fetch('/join', {
+            const response = await fetch('http://localhost:3001/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
