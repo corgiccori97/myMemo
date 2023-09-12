@@ -19,6 +19,7 @@ function Join() {
         mode: "onChange",
     });
     const onSubmit = async (data:UserInfo) => {
+        alert(JSON.stringify(data));
         try {
             const response = await fetch('http://localhost:3001/', {
                 method: 'POST',

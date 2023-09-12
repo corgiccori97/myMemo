@@ -2,6 +2,7 @@ const PORT = 3001;
 
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 // const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 const app = express();
@@ -22,13 +23,15 @@ app.use(cors({
 // POST 요청 시 값을 객체로 바꿈
 app.use(express.urlencoded({ extended: true }))
 
+app.use(bodyParser.json());
+
 app.get('/', (req, res) => {
     res.send("코딩중")
 })
 
 app.post('/', (req, res) => {
-    console.log(req.body);
-    const { email, password } = req.body;
+    const email = req.body.email;
+    const password = req.body.password;
     const query = "INSERT INTO users (email, password) VALUES (?, ?)";
     db.query(query, [email, password], (err, result) => {
         if (err) {
