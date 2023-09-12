@@ -29,9 +29,9 @@ function Join() {
                 body: JSON.stringify(data),
             });
             if (response.ok) {
-                console.log("ok")
+                console.log("ok");
             } else {
-                console.log(response)
+                console.log(response.status);
             } 
         }
         catch (error) {

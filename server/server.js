@@ -3,7 +3,7 @@ const PORT = 3001;
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 const app = express();
 
@@ -31,7 +31,8 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
     const email = req.body.email;
-    const password = req.body.password;
+    let password = req.body.password;
+    password = bcrypt.hashSync(password, 10);
     const query = "INSERT INTO users (email, password) VALUES (?, ?)";
     db.query(query, [email, password], (err, result) => {
         if (err) {
