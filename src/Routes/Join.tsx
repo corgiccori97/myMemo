@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { FieldErrors, useForm } from 'react-hook-form';
-import { Link } from "react-router-dom";
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 interface UserInfo {
     email: string;
@@ -18,10 +18,11 @@ function Join() {
     } = useForm<UserInfo>({
         mode: "onChange",
     });
+    const [isJoined, isJoinedSet] = useState(false);
+    const navigate = useNavigate();
     const onSubmit = async (data:UserInfo) => {
-        alert(JSON.stringify(data));
         try {
-            const response = await fetch('http://localhost:3001/', {
+            const response = await fetch('http://localhost:3001/join', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -29,9 +30,11 @@ function Join() {
                 body: JSON.stringify(data),
             });
             if (response.ok) {
-                console.log("ok");
+                alert("회원가입이 완료되었어요!");
+                isJoinedSet(true);
+                navigate("/signin");
             } else {
-                console.log(response.status);
+                console.log(response);
             } 
         }
         catch (error) {
