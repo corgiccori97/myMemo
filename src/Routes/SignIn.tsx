@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,21 +13,28 @@ function SignIn() {
         handleSubmit,
     } = useForm<LoginInfo>();
     const navigate = useNavigate();
+    const [currentState, SetCurrentState] = useState("");
     const onSubmit = async (data:LoginInfo) => {
         try {
-            const response = await fetch('http://localhost:3001/signin', {
+            const res = await fetch('http://localhost:3001/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
+            })
+            .then((res) => res.json())
+            .then((json) => {
+                console.log(json);
+                if (json.isSignedIn === "True") {
+                    alert("로그인 성공");
+                    SetCurrentState("SignedIn");
+                    navigate("/");
+                }
+                else {
+                    SetCurrentState("Wrong");
+                }
             });
-            if (response.ok) {
-                alert("로그인 성공");
-                navigate("/");
-            } else {
-                console.log(response);
-            }
         }
         catch (err) {
             console.log(err);
@@ -72,6 +80,8 @@ function SignIn() {
             </div>
             <button 
             type="submit">제출</button>
+            <br />
+            { currentState === "Wrong" ? <span className="text-red-600 text-xs">존재하지 않는 유저이거나 비밀번호가 틀렸어요!</span> : <></> }
         </form>
         </>
     );

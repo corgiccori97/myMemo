@@ -13,7 +13,7 @@ export function Chip({sentence, index}: ChipProps) {
     return (
         <Draggable onDrag={(e, data) => trackPosition(data)}>
             <div>
-                <span className="font-bold text-xl cursor-pointer">
+                <span className="text-xl cursor-pointer">
                     {sentence}
                 </span>
             </div>
