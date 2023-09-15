@@ -1,21 +1,36 @@
 import { Link } from 'react-router-dom';
 import Addbtn from './Components/Add';
-import Join from './Routes/Join';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function Home() {
-    const [loggedIn, setLoggedIn] = useState(false);
-    console.log(sessionStorage);
+    const [checkSession, SetCheckSession] = useState(false);
+    useEffect(() => {
+        console.log("check-session start");
+        fetch('http://localhost:3001/check-session')
+        .then(res => res.json())
+        .then(json => {
+            console.log(json);
+            if (json.sessionExists === 'True') {
+                SetCheckSession(true);
+            }
+        })
+    }, []);
     return (
         <div className="flex justify-between">
             <Addbtn />
-            {loggedIn? <></> : (
-                <div className="flex space-x-3">
+            <div className="flex space-x-3">
+                { checkSession ? (
+                    <>
+                    <a href="/signout">로그아웃</a>
+                    </>
+                ) : (
+                    <>
                     <Link to="/join">회원가입</Link>
                     <Link to="/signin">로그인</Link>
                     <a href="/signout">로그아웃</a>
-                </div>
-            )}
+                    </>
+                ) }
+            </div>
         </div>
     );
 }
