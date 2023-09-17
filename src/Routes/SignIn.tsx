@@ -26,10 +26,9 @@ function SignIn() {
             .then((res) => res.json())
             .then((json) => {
                 console.log(json);
-                if (json.isSignedIn === "True") {
+                if (json.isSignedIn) {
                     alert("로그인 성공");
                     SetCurrentState("SignedIn");
-                    navigate("/");
                 }
                 else {
                     SetCurrentState("Wrong");

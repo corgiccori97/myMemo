@@ -11,6 +11,22 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 
 const app = express();
+let hour = 360000;
+
+// 세션
+app.use(session({
+    secret: "mmmo",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        path: "/",
+        secure: false,
+        expires: new Date(Date.now() + hour),
+        sameSite: false,
+        },
+    clearExpired: true,
+    store: new FileStore(),
+}));
 
 const db = mysql.createPool({
     host: "localhost",
@@ -19,19 +35,7 @@ const db = mysql.createPool({
     database: "mymemo",
 });
 
-// 세션
-app.use(session({
-    secret: "mmmo",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        path: "/",
-        maxAge: 1000 * 60 * 60 * 2,
-        secure: false,
-        },
-    clearExpired: true,
-    store: new FileStore(),
-}));
+app.set('trust proxy', 1)
 
 app.use(cors({
     origin: "*",
@@ -41,7 +45,6 @@ app.use(cors({
 
 // POST 요청 시 값을 객체로 바꿈
 app.use(express.urlencoded({ extended: true }))
-
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
@@ -78,24 +81,26 @@ app.post('/signin', (req, res) => {
             bcrypt.compare(userpassword, results[0].password, (err, result) => {
                 // 비밀번호 일치(로그인 성공)
                 if (result) {
-                    req.session.isSignedIn = "True";
+                    req.session.isSignedIn = true;
                     req.session.save((err) => {
-                        if (err) {
-                            console.log(`세션 저장 과정에서 오류:${err}`);
-                            sendData.isSignedIn = "Wrong";
-                            res.status(500).send(sendData);
-                        } else {
-                            sendData.isSignedIn = "True";
+                        if (!err) {
+                            console.log(`세션 저장 성공햇슴요 ㅋㅋ`);
+                            sendData.isSignedIn = true;
                             res.status(200).send(sendData);
+                        } else {
+                            console.log(`세션 저장 과정에서 오류:${err}`);
+                            sendData.isSignedIn = false;
+                            res.status(500).send(sendData);
                         }
                     });
-                    console.log(req.session.isSignedIn);
                 }
                 // 비밀번호 불일치
                 else {
-                    sendData.isSignedIn = "Wrong";
+                    sendData.isSignedIn = false;
                     res.status(500).send(sendData);
                 }
+                console.log(`로그인 후 세션 체크:${req.session}, ${req.session.isSignedIn}, ${req.session.__lastAccess}, ${req.session.cookie.path}, ${req.session.cookie}`);
+                console.log(req.session);
             })
         }
         // 일치하는 이메일이 없음
@@ -118,8 +123,9 @@ app.get('/signout', (req, res) => {
 
 // 세션체크
 app.get('/check-session', (req, res) => {
-    console.log(`세션 있는지 체크:${req.session}, ${req.session.isSignedIn}`);
-    if (req.session && req.session.isSignedIn === "True") {
+    console.log(`세션 있는지 체크:${req.session}, ${req.session.isSignedIn}, ${req.session.__lastAccess}, ${req.session.cookie.path}, ${req.session.cookie}`);
+    console.log(req.session);
+    if (req.session && req.session.isSignedIn === true) {
         res.json({ sessionExists: true });
         res.status(200).send();
     } 
