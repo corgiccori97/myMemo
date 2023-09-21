@@ -1,24 +1,54 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { sentenceState } from '../atoms';
 import { useRecoilState } from 'recoil';
 import ChipList from './ChipList';
 
+interface MemoInfo {
+    content?: string;
+    image?: string;
+}
 export default function Addbtn() {
     const [add, setAdd] = useState(false);
-    const { register, handleSubmit, setValue } = useForm();
+    const [imagePreview, SetImagePreview] = useState("");
+    const { 
+        register, 
+        handleSubmit, 
+        watch,
+        reset
+    } = useForm();
     const [sentenceList, setSentenceList] = useRecoilState(sentenceState);
-    let chipNumber = 0;
 
-    const onSubmit = (data:any) => {
-        const newSentence = data.content;
-        const newChip = { content: newSentence, index: chipNumber };
-        chipNumber += 1;
-        setValue("content", "");
-        setSentenceList([...sentenceList, newChip]);
-    }
+    const onSubmit = async (data:MemoInfo) => {
+        try {
+            const res = await fetch("http://localhost:3001/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify([data, imagePreview]),
+            })
+            .then((res) => res.json())
+            .then((json) => {
+                console.log(json);
+            });
+        }
+        catch (err) {
+            console.log(err);
+        }
+        reset();
+        setAdd(false);
+    };
 
     const clickedAdd = () => setAdd(prev => !prev);
+    const image = watch("image");
+    useEffect(() => {
+        if (image && image.length) {
+            const file = image[0];
+            SetImagePreview(URL.createObjectURL(file));
+        }
+    }, [image])
+
     return (
         <div>
         <button
@@ -72,23 +102,54 @@ export default function Addbtn() {
                     </div>
                     <hr className="mb-3"/>
                     {/* Modal body: 입력 */}
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <input className="bg-transparent px-2 py-1"
+                    <form onSubmit={handleSubmit(onSubmit)} id="chipForm">
+                        {/* 사진 */}
+                        {/* 사진 삽입 이루어졌을 때 / default */}
+                        <img src={imagePreview} alt="" />
+                        <textarea 
+                        className="block w-full px-0 text-sm text-gray-800 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" 
+                        rows={8} 
+                        required
                         {...register("content", { required: true })} placeholder="문구 입력" />
                         {/* Modal footer: 제출, 닫기 버튼 */}
                         <div className="flex mt-2">
                             {/* 제출 버튼 */}
-                            <button>제출</button>
+                            <button className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-400">제출</button>
                             {/* 닫기 버튼 */}
                             <button
                             type="button"
                             onClick={() => setAdd(prev => !prev)}
-                            className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
+                            className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-400 ml-2"
                             data-te-modal-dismiss
                             data-te-ripple-init
                             data-te-ripple-color="light">
                             닫기
                             </button>
+                            {/* 사진 첨부  */}
+                            <label>
+                                <input type="file" hidden 
+                                {...register("image")} />
+                                <svg 
+                                className="w-6 h-6" 
+                                aria-hidden="true" 
+                                xmlns="http://www.w3.org/2000/svg" fill="none" 
+                                viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="1.5" d="M1 6v8a5 5 0 1 0 10 0V4.5a3.5 3.5 0 1 0-7 0V13a2 2 0 0 0 4 0V6"/>
+                                </svg>
+                            </label>
+                            {/* 사진 삭제 아이콘 */}
+                            <button onClick={() => {
+                                SetImagePreview("");
+                            }}>
+                            <svg fill="none" 
+                            stroke="currentColor"
+                            stroke-width="1.5" 
+                            viewBox="0 0 24 24" 
+                            xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                            className="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path>
+                            </svg> 
+                            </button> 
                         </div>
                     </form>
                 </div>

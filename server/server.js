@@ -48,7 +48,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    res.send("다울었니? 이제할일을하자..")
+    res.send(FileStore.session);
+    console.log(FileStore);
 })
 
 // 회원가입
@@ -123,7 +124,7 @@ app.get('/signout', (req, res) => {
 
 // 세션체크
 app.get('/check-session', (req, res) => {
-    console.log(`세션 있는지 체크:${req.session}, ${req.session.isSignedIn}, ${req.session.__lastAccess}, ${req.session.cookie.path}, ${req.session.cookie}`);
+    console.log(FileStore.session);
     console.log(req.session);
     if (req.session && req.session.isSignedIn === true) {
         res.json({ sessionExists: true });
@@ -134,6 +135,22 @@ app.get('/check-session', (req, res) => {
         res.status(500).send();
     }
 });
+
+// memo 추가
+app.post('/add', (req, res) => {
+    const content = req.body[0].content;
+    const imageSource = req.body[1].split("localhost:3000/")[1];
+    const dataInsertQuery = "INSERT INTO memochip (content, photo_url) VALUES (?, ?)";
+    db.query(dataInsertQuery, [content, imageSource], (err, result) => {
+        if (err) {
+        console.error('Error executing MySQL query: ', err);
+        res.status(500).send(err);
+        } else {
+        console.log('Data inserted successfully');
+        res.status(200).send('Data inserted successfully');
+        }
+    });
+})
 
 // 서버 연결 
 app.listen(PORT, () => {

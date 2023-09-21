@@ -29,6 +29,7 @@ function SignIn() {
                 if (json.isSignedIn) {
                     alert("로그인 성공");
                     SetCurrentState("SignedIn");
+                    navigate("/");
                 }
                 else {
                     SetCurrentState("Wrong");

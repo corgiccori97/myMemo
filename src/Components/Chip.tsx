@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import Draggable from 'react-draggable';
 interface ChipProps {
-    sentence:string;
+    sentence?:string;
     index: number;
+    photo_url?: string;
 }
 
 export function Chip({sentence, index}: ChipProps) {
