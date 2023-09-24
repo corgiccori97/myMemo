@@ -10,13 +10,12 @@ function Header() {
             <div className="flex space-x-3">
                 { checkSession ? (
                     <>
-                    <a href="/signout">로그아웃</a>
                     </>
                 ) : (
                     <>
                     <Link to="/join">회원가입</Link>
                     <Link to="/signin">로그인</Link>
-                    <a href="/signout">로그아웃</a>
+                    <Link to="/signout">로그아웃</Link>
                     </>
                 ) }
             </div>

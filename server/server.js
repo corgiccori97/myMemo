@@ -1,32 +1,44 @@
 const PORT = 3001;
-const checkQuery = "SELECT * FROM users WHERE email = ?";
-const insertQuery = "INSERT INTO users (email, password) VALUES (?, ?)";
 
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 
 const app = express();
 let hour = 360000;
 
+const checkQuery = "SELECT * FROM users WHERE email = ?";
+const insertQuery = "INSERT INTO users (email, password) VALUES (?, ?)";
+
+app.set('trust proxy', 1) // trust first proxy
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); // POST 요청 시 값을 객체로 바꿈
+app.use(bodyParser.json());
+
+const SessionCookie = process.env.NODE_ENV === "dev" ? {
+    secure: false,
+    sameSite: "lax",
+    expires: new Date(Date.now() + hour),
+} : {
+    secure: true,
+    sameSite: "none",
+    expires: new Date(Date.now() + hour),
+}
+
 // 세션
 app.use(session({
-    secret: "mmmo",
+    secret: "keyboard cat",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        path: "/",
-        secure: false,
-        expires: new Date(Date.now() + hour),
-        sameSite: false,
-        },
     clearExpired: true,
     store: new FileStore(),
-}));
+    cookie: { ...SessionCookie } 
+}))
 
 const db = mysql.createPool({
     host: "localhost",
@@ -35,22 +47,11 @@ const db = mysql.createPool({
     database: "mymemo",
 });
 
-app.set('trust proxy', 1)
-
 app.use(cors({
-    origin: "*",
+    origin: "http://localhost:3000",
     credentials: true, // 응답 헤더에 acess-control-allow-credentials 추가
     optionsSuccessStatus: 200, // 응답 상태 200
-}))
-
-// POST 요청 시 값을 객체로 바꿈
-app.use(express.urlencoded({ extended: true }))
-app.use(bodyParser.json());
-
-app.get('/', (req, res) => {
-    res.send(FileStore.session);
-    console.log(FileStore);
-})
+}));
 
 // 회원가입
 app.post('/join', (req, res) => {
@@ -83,10 +84,12 @@ app.post('/signin', (req, res) => {
                 // 비밀번호 일치(로그인 성공)
                 if (result) {
                     req.session.isSignedIn = true;
+                    req.session.email = useremail;
                     req.session.save((err) => {
                         if (!err) {
                             console.log(`세션 저장 성공햇슴요 ㅋㅋ`);
                             sendData.isSignedIn = true;
+                            sendData.email = useremail;
                             res.status(200).send(sendData);
                         } else {
                             console.log(`세션 저장 과정에서 오류:${err}`);
@@ -100,7 +103,6 @@ app.post('/signin', (req, res) => {
                     sendData.isSignedIn = false;
                     res.status(500).send(sendData);
                 }
-                console.log(`로그인 후 세션 체크:${req.session}, ${req.session.isSignedIn}, ${req.session.__lastAccess}, ${req.session.cookie.path}, ${req.session.cookie}`);
                 console.log(req.session);
             })
         }
@@ -114,17 +116,21 @@ app.post('/signin', (req, res) => {
 
 // 로그아웃
 app.get('/signout', (req, res) => {
+    console.log(`세션 만료: ${JSON.stringify(req.session)}`);
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send("<h1>500 error</h1>");
         }
-        res.redirect("/");
+        res.status(200).send();
     });
 });
 
+app.get('/', (req, res) => {
+    console.log(JSON.stringify(req.session));
+})
+
 // 세션체크
 app.get('/check-session', (req, res) => {
-    console.log(FileStore.session);
     console.log(req.session);
     if (req.session && req.session.isSignedIn === true) {
         res.json({ sessionExists: true });
@@ -147,9 +153,17 @@ app.post('/add', (req, res) => {
         res.status(500).send(err);
         } else {
         console.log('Data inserted successfully');
-        res.status(200).send('Data inserted successfully');
+        res.status(200).send();
         }
     });
+});
+
+// 데이터 가져와서 화면에 표시
+app.get('/paint', (req, res) => {
+    const findQuery = "SELECT * FROM memochip WHERE user_id= ?";
+    db.query(findQuery, [req.session.email], (err, result) => {
+        console.log(`paint 함수: ${result}`);
+    })
 })
 
 // 서버 연결 

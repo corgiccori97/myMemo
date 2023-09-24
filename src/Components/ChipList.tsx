@@ -1,7 +1,7 @@
 import { Chip } from './Chip';
 
 interface ChipListProps {
-    chips: { index: number; content: string; }[];
+    chips: { index: number; content: string; image: string; }[];
 }
 
 const ChipList:React.FC<ChipListProps> = ({ chips }) => {
@@ -10,7 +10,8 @@ const ChipList:React.FC<ChipListProps> = ({ chips }) => {
         {chips.map((chip) => (
             <Chip key={chip.index} 
             index={chip.index} 
-            sentence={chip.content} />
+            sentence={chip.content}
+            photo_url={chip.image} />
         ))}
         </>
     );

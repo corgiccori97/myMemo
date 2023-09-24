@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { sentenceState } from '../atoms';
-import { useRecoilState } from 'recoil';
-import ChipList from './ChipList';
+import ReactTypingEffect from 'react-typing-effect';
 
 interface MemoInfo {
     content?: string;
@@ -17,7 +15,7 @@ export default function Addbtn() {
         watch,
         reset
     } = useForm();
-    const [sentenceList, setSentenceList] = useRecoilState(sentenceState);
+    const [memoList, setMemoList] = useState<MemoInfo[]>([]);
 
     const onSubmit = async (data:MemoInfo) => {
         try {
@@ -28,16 +26,16 @@ export default function Addbtn() {
                 },
                 body: JSON.stringify([data, imagePreview]),
             })
-            .then((res) => res.json())
-            .then((json) => {
-                console.log(json);
+            .then((res) =>{
+                console.log(res);
             });
         }
         catch (err) {
             console.log(err);
         }
+        setMemoList([...memoList, data]);
         reset();
-        setAdd(false);
+        // setAdd(false);
     };
 
     const clickedAdd = () => setAdd(prev => !prev);
@@ -54,11 +52,12 @@ export default function Addbtn() {
         <button
         type="button"
         onClick={() => clickedAdd()}
-        className="rounded bg-primary px-6 pb-2 pt-2.5 text-6xl font-medium uppercase leading-normal transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] text-blue-200 font-body"
+        className="rounded bg-primary px-6 pb-2 pt-2.5 text-6xl font-medium uppercase leading-normal transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] text-blue-200 font-body water-text"
         data-modal-target="addModal"
         data-modal-toggle="addModal"
         >
-            ADDDDDDDDDD SOMETHING
+            <ReactTypingEffect text={["ADDDDDDDDDD"]} />
+            <ReactTypingEffect text={["SOMETHINGGGGG"]} />
         </button>
         {add ? (
             // 배경
@@ -109,8 +108,7 @@ export default function Addbtn() {
                         <textarea 
                         className="block w-full px-0 text-sm text-gray-800 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" 
                         rows={8} 
-                        required
-                        {...register("content", { required: true })} placeholder="문구 입력" />
+                        {...register("content", { required: false })} placeholder="문구 입력" />
                         {/* Modal footer: 제출, 닫기 버튼 */}
                         <div className="flex mt-2">
                             {/* 제출 버튼 */}
@@ -156,8 +154,6 @@ export default function Addbtn() {
             </div>
         )
         : null}
-        <ChipList chips={sentenceList} />
         </div>
     );
-
 }

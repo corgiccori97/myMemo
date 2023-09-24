@@ -72,3 +72,27 @@ a {
   text-decoration:none;
   color:inherit;
 }
+
+.wave-text {
+  background: linear-gradient(90deg, transparent, #00bcd4, transparent);
+  background-size: 200% 100%;
+  animation: wave-animation 2s infinite;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.water-text {
+  background: linear-gradient(180deg, rgba(185, 249, 248, 0.97), rgb(181, 241, 252));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 255, 0.2);
+  font-size: 36px; /* 원하는 글꼴 크기로 조정 */
+  font-weight: bold; /* 원하는 글꼴 두께로 조정 */
+}
+
+.typewriter {
+  animation: typewriter 4s steps(44) 1s 1 normal both,
+  blinkTextCursor 500ms stpes(44) infinite normal;
+}

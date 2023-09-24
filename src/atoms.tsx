@@ -1,11 +1,12 @@
 import { atom } from "recoil";
 
 export interface IChip {
-    content: string;
+    content?: string;
+    image?: string;
     index: number;
 }
 
-export const sentenceState = atom<IChip[]>({
+export const memoState = atom<IChip[]>({
     key: "unique_content",
     default: [],
 });
