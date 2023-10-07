@@ -6,7 +6,6 @@ function Header() {
     const [checkSession, setCheckSession] = useState(false);
     return (
         <div className='flex justify-between'>
-        <Addbtn />
             <div className="flex space-x-3">
                 { checkSession ? (
                     <>

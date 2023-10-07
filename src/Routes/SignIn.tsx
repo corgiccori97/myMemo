@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, Link } from 'react-router-dom';
 interface  LoginInfo {
     email: string;
     password: string;
@@ -22,7 +21,7 @@ function SignIn() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
-                // credentials: "include",
+                credentials: "include",
             })
             .then((res) => res.json())
             .then((json) => {
@@ -30,7 +29,6 @@ function SignIn() {
                 if (json.isSignedIn) {
                     alert("로그인 성공");
                     SetCurrentState("SignedIn");
-                    navigate("/");
                 }
                 else {
                     SetCurrentState("Wrong");
@@ -44,6 +42,9 @@ function SignIn() {
 
     return (
         <>
+        <button>
+            <Link to="/">홈으로 돌아가기</Link>
+        </button>
         <form 
         className="w-1/2 mx-auto"
         onSubmit={handleSubmit(onSubmit)}

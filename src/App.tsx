@@ -8,30 +8,21 @@ import Signout from './Routes/Signout';
 
 // 페이지별
 function App() {
-  const [checkSession, SetCheckSession] = useState(false);
-  useEffect(() => {
-    console.log("check-session start");
-    fetch('http://localhost:3001/check-session')
-    .then(res => res.json())
-    .then(json => {
-        console.log(json);
-        if (json.sessionExists === true) {
-            console.log("session!!!!!! exists!!!");
-            SetCheckSession(true);
-        }
-    })
-}, []);
-
   return (
-    <>
-    <Header />
-    <Routes>
-      <Route path="/" element={<Home />}></Route>
-      <Route path="/join" element={<Join />}></Route>             
-      <Route path="/signin" element={<SignIn />}></Route>
-      <Route path="/signout" element={<Signout />}></Route>
-    </Routes>
-    </>
+    <div className="w-full max-h-full color-bg">
+      <div className="leaf leaf-1"></div>
+      <div className="leaf leaf-2"></div>
+      <div className="leaf leaf-3"></div>
+      <div className="leaf leaf-4"></div>
+      <div className="leaf leaf-5"></div>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/join" element={<Join />}></Route>             
+        <Route path="/signin" element={<SignIn />}></Route>
+        <Route path="/signout" element={<Signout />}></Route>
+      </Routes>
+    </div>
   );
 }
 

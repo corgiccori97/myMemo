@@ -12,8 +12,8 @@ export default function Signout() {
             else {
                 console.log("뭔가 잘못됨");
             }
-            navigate("/");
         })
+        navigate("/");
     }, []);
     return null;
 }
