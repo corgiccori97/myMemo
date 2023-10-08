@@ -9,7 +9,7 @@ import Signout from './Routes/Signout';
 // 페이지별
 function App() {
   return (
-    <div className="w-full max-h-full color-bg">
+    <div className="w-full max-h-full color-bg z-0">
       <div className="leaf leaf-1"></div>
       <div className="leaf leaf-2"></div>
       <div className="leaf leaf-3"></div>
