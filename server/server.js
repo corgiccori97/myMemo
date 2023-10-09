@@ -5,7 +5,6 @@ const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const mysql = require('mysql2');
-let hour = 360000;
 
 const app = module.exports = express();
 
@@ -28,11 +27,12 @@ app.use(session({
     clearExpired: true,
     store: sessionStore,
     cookie: { 
+        withCredentials:true,
         httpOnly: false,
         secure: false,
-        // expires: new Date(Date.now() + hour),
         expires: new Date().toLocaleTimeString,
         maxAge: 1000 * 60 * 60 * 24, // 1일
+        samesite: 'none'
     },
 }));
 
@@ -46,30 +46,12 @@ const insertQuery = "INSERT INTO users (email, password) VALUES (?, ?)";
 app.set('trust proxy', 1) // trust first proxy
 app.use(express.urlencoded({ extended: true })); // POST 요청 시 값을 객체로 바꿈
 app.use(bodyParser.json());
-// app.use(cookieParser());
 
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true, // 응답 헤더에 acess-control-allow-credentials 추가
     optionsSuccessStatus: 200, // 응답 상태 200
 }));
-
-// 회원가입
-app.post('/join', (req, res) => {
-    const sendData = { isJoin: "" };
-    const email = req.body.email;
-    let password = req.body.password;
-    password = bcrypt.hashSync(password, 10);
-    db.query(insertQuery, [email, password], (err, result) => {
-        if (err) {
-        console.error('Error executing MySQL query: ', err);
-        res.status(500).send(err);
-        } else {
-        console.log('Data inserted successfully');
-        res.status(200).send('Data inserted successfully');
-        }
-    });
-});
 
 // 로그인
 app.post('/signin', (req, res) => {
@@ -85,14 +67,17 @@ app.post('/signin', (req, res) => {
                 if (result) {
                     req.session.isSignedIn = true;
                     req.session.email = useremail;
-                    req.session.save((err) => {
-                        if (!err) {
-                            console.log(`세션 저장 성공햇슴요 ㅋㅋ`);
-                            res.send({ isSignedIn: true });
-                        } else {
-                            console.log(`세션 저장 과정에서 오류:${err}`);
-                            res.status(500).send({ isSignedIn: false });
-                        }
+                    req.session.save( function (err) {
+                        req.session.reload( function (err) {
+                            if (!err) {
+                                console.log("세션 저장 성공");
+                                res.send({ isSignedIn: true });
+                            } else {
+                                console.log(`오류: ${err}`);
+                                res.status(500).send({ isSignedIn: false });
+                            }
+                        });
+                        console.log("로그인 후 세션");
                         console.log(req.session);
                     });
                 }
@@ -109,19 +94,38 @@ app.post('/signin', (req, res) => {
     })
 });
 
+app.get('/', (req, res) => {
+    console.log(req.session);
+})
+
+// 회원가입
+app.post('/join', (req, res) => {
+    console.log(req.session);
+    const email = req.body.email;
+    let password = req.body.password;
+    password = bcrypt.hashSync(password, 10);
+    db.query(insertQuery, [email, password], (err, result) => {
+        if (err) {
+        console.error('Error executing MySQL query: ', err);
+        res.status(500).send(err);
+        } else {
+        console.log('Data inserted successfully');
+        res.status(200).send('Data inserted successfully');
+        }
+    });
+});
+
 // 로그아웃
-app.get('/signout', (req, res) => {
-    req.session.destroy().then(() => {
-        console.log("logged out");
-    })
-    .catch(err => {
-        console.log(err);
-    })
+app.post('/signout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            throw err;
+        }
+    });
 });
 
 // 세션체크
-app.get('/check-session', (req, res) => {
-    console.log(req.sessionID);
+app.post('/check-session', (req, res) => {
     if (!req.session || !req.session.isSignedIn) {
         // 세션이 없거나 로그인되지 않은 상태
         res.json({ sessionExists: false });
