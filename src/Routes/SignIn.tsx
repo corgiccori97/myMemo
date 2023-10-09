@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { authenticatedState, userIdState } from '../atoms';
 interface  LoginInfo {
     email: string;
     password: string;
@@ -13,6 +15,10 @@ function SignIn() {
     } = useForm<LoginInfo>();
     const navigate = useNavigate();
     const [currentState, SetCurrentState] = useState("");
+    // 리코일 값
+    const [, setAuthenticated] = useRecoilState(authenticatedState);
+    const [, setUserId] = useRecoilState(userIdState);
+    
     const onSubmit = async (data:LoginInfo) => {
         try {
             await fetch('http://localhost:3001/signin', {
@@ -21,7 +27,7 @@ function SignIn() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
-                credentials: "include",
+                credentials: 'include'
             })
             .then((res) => res.json())
             .then((json) => {
@@ -29,6 +35,10 @@ function SignIn() {
                 if (json.isSignedIn) {
                     alert("로그인 성공");
                     SetCurrentState("SignedIn");
+                    // 리코일 값 업데이트
+                    setAuthenticated(true);
+                    setUserId(data.email);
+                    navigate("/");
                 }
                 else {
                     SetCurrentState("Wrong");
@@ -46,7 +56,7 @@ function SignIn() {
             <Link to="/">홈으로 돌아가기</Link>
         </button>
         <form 
-        className="w-1/2 mx-auto"
+        className="w-1/2 mx-auto relative"
         onSubmit={handleSubmit(onSubmit)}
         name="loginInfo">
             <h1 className="font-extrabold text-gray-800">이메일, 비밀번호로 로그인하세요</h1>
