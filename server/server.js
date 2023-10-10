@@ -119,7 +119,9 @@ app.post('/join', (req, res) => {
 app.post('/signout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            throw err;
+            res.status(500).json({ error: 'error' });
+        } else {
+            res.status(200).json({ message: 'logged out' });
         }
     });
 });
