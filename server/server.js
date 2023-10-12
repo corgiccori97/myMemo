@@ -39,6 +39,7 @@ app.use(session({
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+const { default: userEvent } = require('@testing-library/user-event');
 
 const checkQuery = "SELECT * FROM users WHERE email = ?";
 const insertQuery = "INSERT INTO users (email, password) VALUES (?, ?)";
@@ -78,7 +79,6 @@ app.post('/signin', (req, res) => {
                             }
                         });
                         console.log("로그인 후 세션");
-                        console.log(req.session);
                     });
                 }
                 // 비밀번호 불일치
@@ -100,7 +100,6 @@ app.get('/', (req, res) => {
 
 // 회원가입
 app.post('/join', (req, res) => {
-    console.log(req.session);
     const email = req.body.email;
     let password = req.body.password;
     password = bcrypt.hashSync(password, 10);
@@ -139,6 +138,26 @@ app.post('/check-session', (req, res) => {
     }
 });
 
+// Notebook 추가
+app.post('/notebook', (req, res) => {
+    const title = req.body.title;
+    const email = req.session.email;
+    db.query("SELECT id FROM users WHERE email = ?", [email], (err, results) => {
+        if (err) {
+            res.status(500).send('error retrieving user data');
+        } else {
+            const userId = results[0].id;
+            db.query("INSERT INTO notebooks (id, notebook_name) VALUES (?, ?)", [userId, title], (err, result) => {
+                if (err) {
+                    res.status(500).send('error creating notebook');
+                } else {
+                    res.status(200).send('notebook created successfully');
+                }
+            });
+        }
+    });
+});
+
 // memo 추가
 app.post('/add', (req, res) => {
     const content = req.body[0].content;
@@ -156,11 +175,22 @@ app.post('/add', (req, res) => {
 });
 
 // 데이터 가져와서 화면에 표시
-app.get('/paint', (req, res) => {
-    const findQuery = "SELECT * FROM memochip WHERE user_id= ?";
-    db.query(findQuery, [req.session.email], (err, result) => {
-        console.log(`paint 함수: ${result}`);
-    })
+app.post('/paint', (req, res) => {
+    console.log(req.session);
+    db.query("SELECT id FROM users WHERE email = ?", [req.session.email], (err, results) => {
+        if (err) {
+            res.status(500).send("error retrieving user data");
+        } else {
+            const userId = results[0].id;
+            db.query("SELECT notebook_name FROM notebooks WHERE id = ?", [userId], (err, result) => {
+                if (err) {
+                    res.status(500).send("error selecting notebooks");
+                } else {
+                    res.status(200).send(result);
+                }
+            });
+        }
+    });
 })
 
 // 서버 연결 
