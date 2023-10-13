@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import Signout from './Routes/Signout';
 import { authenticatedState } from './atoms';
 import { useRecoilValue } from 'recoil';
+import Notebook from './Components/Notebook';
 
 // 페이지별
 function App() {
@@ -31,20 +32,23 @@ function App() {
   // }, []);
 
   return (
-    <div className="w-full max-h-full color-bg z-0">
-      <div className="leaf leaf-1"></div>
-      <div className="leaf leaf-2"></div>
-      <div className="leaf leaf-3"></div>
-      <div className="leaf leaf-4"></div>
-      <div className="leaf leaf-5"></div>
-      <Header authenticated={ authenticated } />
-      <Routes>
-        <Route path="/" element={<Home />}></Route>
-        <Route path="/join" element={<Join />}></Route>             
-        <Route path="/signin" element={<SignIn />}></Route>
-        <Route path="/signout" element={<Signout />}></Route>
-      </Routes>
-    </div>
+      <div className="w-full max-h-full color-bg">
+        <div className="leaf leaf-1"></div>
+        <div className="leaf leaf-2"></div>
+        <div className="leaf leaf-3"></div>
+        <div className="leaf leaf-4"></div>
+        <div className="leaf leaf-5"></div>
+        <div className="h-screen text-center relative">
+          <Header authenticated={ authenticated } />
+          <Routes>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/join" element={<Join />}></Route>             
+            <Route path="/signin" element={<SignIn />}></Route>
+            <Route path="/signout" element={<Signout />}></Route>
+            <Route path="/notebook/:id" element={<Notebook />}></Route>
+          </Routes>
+        </div>
+      </div>
   );
 }
 

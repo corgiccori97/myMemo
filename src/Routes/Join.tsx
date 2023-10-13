@@ -45,7 +45,7 @@ function Join() {
     return (
         <>
         <form 
-        className="w-1/2 mx-auto relative"
+        className="w-1/2 mx-auto"
         onSubmit={handleSubmit(onSubmit)}
         name="userInfo">
             <h1 className="font-extrabold text-gray-800">회원가입하고 내 메모를 저장하세요</h1>

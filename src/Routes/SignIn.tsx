@@ -56,7 +56,7 @@ function SignIn() {
             <Link to="/">홈으로 돌아가기</Link>
         </button>
         <form 
-        className="w-1/2 mx-auto relative"
+        className="w-1/2 mx-auto"
         onSubmit={handleSubmit(onSubmit)}
         name="loginInfo">
             <h1 className="font-extrabold text-gray-800">이메일, 비밀번호로 로그인하세요</h1>

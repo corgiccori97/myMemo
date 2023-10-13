@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Notebook from './Components/Notebook';
+import { Link } from 'react-router-dom';
 
 interface NotebookInfo {
     title: string;
@@ -21,7 +21,6 @@ function Home() {
         })
         .then(res => res.json())
         .then(json => {
-            console.log(json);
             setNotebooks(prev => [
                 ...prev,
                 ...json.map((j: {notebook_id: number; notebook_name: string }) => ({
@@ -60,34 +59,28 @@ function Home() {
     };
 
     return (
-        <div className="h-screen text-center relative">
-            <div>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <label>
-                        <input {...register("title", {
-                            required: "*노트북 제목을 입력하세요!",
-                        })} 
-                        placeholder="새로운 노트북 제목" />
-                    </label>
-                    <br />
-                    <button 
-                    className=" bg-white p-2 rounded-xl text-gray-800
-                    hover:bg-gray-100 hover:text-gray-600 font-body water-text"
-                    type="submit">+ NOTEBOOK list +</button>
-                </form>
-                <div className="flex flex-wrap mx-auto border border-dashed rounded-[50%] w-1/2 border-gray-400 justify-center body">
-                    {notebooks.map((notebook) => (
-                        <div className=" bg-[#ffffff] m-2 p-2 rounded-xl cursor-pointer hover:ring-2 ring-blue-400">
-                            <span className="text-gray-700">
-                            {notebook.notebook_name}
-                            </span>
-                        </div>
-                    ))}
+        <>
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <label>
+                <input {...register("title", {
+                    required: "*노트북 제목을 입력하세요!",
+                })} 
+                placeholder="새로운 노트북 제목" />
+            </label>
+            <br />
+            <button 
+            className=" bg-white p-2 rounded-xl text-gray-800
+            hover:bg-gray-100 hover:text-gray-600 font-body water-text"
+            type="submit">+ NOTEBOOK list +</button>
+        </form>
+        <div className="flex flex-wrap mx-auto border border-dashed rounded-[50%] w-1/2 border-gray-400 justify-center body">
+            {notebooks.map((notebook) => (
+                <div className=" bg-[#ffffff] m-2 p-2 rounded-xl cursor-pointer hover:ring-2 ring-blue-400">
+                    <Link to={`/notebook/${notebook.notebook_id}`}>{notebook.notebook_name}</Link>
                 </div>
-            </div>
-
-
+            ))}
         </div>
+        </>
     );
 }
 

@@ -109,7 +109,6 @@ a {
   height: 50rem; 
   position: absolute;
   background-color: transparent;
-  z-index: 0;
 }
 
 .leaf:nth-child(1) {
