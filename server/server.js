@@ -151,7 +151,9 @@ app.post('/notebook', (req, res) => {
                 if (err) {
                     res.status(500).send('error creating notebook');
                 } else {
-                    res.status(200).send('notebook created successfully');
+                    db.query("SELECT id FROM notebooks WHERE notebook_name = ? AND id = ?", [title, userId], (err, re) => {
+                        if (!err) res.status(200).send(re);
+                    });
                 }
             });
         }
@@ -176,13 +178,12 @@ app.post('/add', (req, res) => {
 
 // 데이터 가져와서 화면에 표시
 app.post('/paint', (req, res) => {
-    console.log(req.session);
     db.query("SELECT id FROM users WHERE email = ?", [req.session.email], (err, results) => {
-        if (err) {
+        if (err || !results.length) {
             res.status(500).send("error retrieving user data");
         } else {
             const userId = results[0].id;
-            db.query("SELECT notebook_name FROM notebooks WHERE id = ?", [userId], (err, result) => {
+            db.query("SELECT * FROM notebooks WHERE id = ?", [userId], (err, result) => {
                 if (err) {
                     res.status(500).send("error selecting notebooks");
                 } else {
