@@ -49,7 +49,8 @@ function Home() {
             })
             .then((res) => res.json())
             .then((json) => {
-                setNotebooks([...notebooks, {notebook_id:json[0].id, notebook_name: data.title}]);
+                console.log(json);
+                setNotebooks([...notebooks, {notebook_id:json[0].notebook_id, notebook_name: data.title}]);
                 reset({title: ""});
             })
         }
