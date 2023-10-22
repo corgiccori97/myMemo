@@ -3,33 +3,30 @@ import { Route, Routes } from 'react-router-dom';
 import Join from './Routes/Join';
 import SignIn from './Routes/SignIn';
 import Header from './Components/Header';
-import { useState, useEffect } from 'react'; 
+import { useEffect } from 'react'; 
 import Signout from './Routes/Signout';
 import { authenticatedState } from './atoms';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import Notebook from './Components/Notebook';
 
 // 페이지별
 function App() {
-  const authenticated = useRecoilValue(authenticatedState);
-  
-  //// 추후에 삭제할 코드!!!
-  // const [authenticated, setAuthenticated] = useState(false);
-  // useEffect(() => {
-  //     fetch('http://localhost:3001/check-session', {
-  //         method: 'POST',
-  //         headers: {
-  //             'Content-Type': 'application/json',
-  //         },
-  //         credentials: 'include'
-  //     })
-  //     .then((res) => res.json())
-  //     .then((json) => {
-  //         if (json.sessionExists === true) {
-  //             setAuthenticated(true);
-  //         }
-  //     })
-  // }, []);
+  const [, setAuthenticated] = useRecoilState(authenticatedState);
+  useEffect(() => {
+      fetch('http://localhost:3001/check-session', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+      })
+      .then((res) => res.json())
+      .then((json) => {
+          if (json.sessionExists === true) {
+              setAuthenticated(true);
+          }
+      })
+  }, []);
 
   return (
       <div className="w-full max-h-full color-bg">
@@ -39,13 +36,13 @@ function App() {
         <div className="leaf leaf-4"></div>
         <div className="leaf leaf-5"></div>
         <div className="h-screen text-center relative">
-          <Header authenticated={ authenticated } />
+          <Header authenticated={ useRecoilValue(authenticatedState) } />
           <Routes>
             <Route path="/" element={<Home />}></Route>
             <Route path="/join" element={<Join />}></Route>             
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signout" element={<Signout />}></Route>
-            <Route path="/notebook/:id" element={<Notebook />}></Route>
+            <Route path="/notebook/:id" element={<Notebook /> }></Route>
           </Routes>
         </div>
       </div>
