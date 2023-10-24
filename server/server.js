@@ -64,7 +64,6 @@ app.post('/signin', (req, res) => {
             bcrypt.compare(userpassword, results[0].password, (err, result) => {
                 // 비밀번호 일치(로그인 성공)
                 if (result) {
-                    console.log(results, result);
                     req.session.userId = results[0].id;
                     req.session.save( function (err) {
                         req.session.reload( function (err) {
@@ -76,7 +75,6 @@ app.post('/signin', (req, res) => {
                                 res.status(500).send({ isSignedIn: false });
                             }
                         });
-                        console.log("로그인 후 세션");
                     });
                 }
                 // 비밀번호 불일치
@@ -125,14 +123,11 @@ app.post('/signout', (req, res) => {
 
 // 세션체크
 app.post('/check-session', (req, res) => {
-    if (!req.session || !req.session.id) {
+    if (req.session && req.session.userId) {
+        res.json({ sessionExists: true });
+    } else {
         // 세션이 없거나 로그인되지 않은 상태
         res.json({ sessionExists: false });
-        res.status(401).send(); 
-    } else {
-        // 세션이 존재하고 로그인된 상태
-        res.json({ sessionExists: true });
-        res.status(200).send();
     }
 });
 
@@ -152,17 +147,16 @@ app.post('/notebook', (req, res) => {
 
 // Notebook => memo 추가
 app.post('/add', (req, res) => {
-    console.log(req.body);
     const notebook_id = req.body[0];
     let content = '';
     let imageSource = '';
     if (req.body[1].content) {
         content = req.body[1].content;
     };
-    if (req.body[1].image) {
-        imageSource = req.body[1].image;
+    if (req.body[1].image.length) {
+        imageSource = req.body[2];
     };
-    db.query("INSERT INTO memochip (notebook_id, user_id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.id, content, imageSource], (err, result) => {
+    db.query("INSERT INTO memochip (notebook_id, id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageSource], (err, result) => {
         if (err) {
         console.log(err);
         res.status(500).send(err);
@@ -172,7 +166,7 @@ app.post('/add', (req, res) => {
     });
 });
 
-// 데이터 가져와서 화면에 표시
+// !노트북 데이터! 가져와서 화면에 표시
 app.post('/paint', (req, res) => {
     db.query("SELECT * FROM notebooks WHERE id = ?", [req.session.userId], (err, result) => {
         if (err) {
@@ -181,6 +175,17 @@ app.post('/paint', (req, res) => {
             res.status(200).send(result);
         }
     });
+})
+
+// !메모 데이터! 가져와서 화면에 표시
+app.post('/paintm', (req, res) => {
+    db.query("SELECT * FROM memochip WHERE id = ? AND notebook_id = ?", [req.session.userId, req.body], (err, result) => {
+        if (err) {
+            res.status(500).send("error selecting memochips");
+        } else {
+            res.status(200).send(result);
+        }
+    })
 })
 
 // 서버 연결 
