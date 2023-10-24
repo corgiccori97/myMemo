@@ -1,48 +1,69 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactTypingEffect from 'react-typing-effect';
+import { useRecoilState } from 'recoil';
+import { isMemoAddedState } from '../atoms';
 
 interface MemoInfo {
     content?: string;
     image?: string;
 }
-export default function Addbtn() {
+
+interface propsInfo {
+    notebook_id: number;
+}
+
+export default function Addbtn(props:propsInfo) {
     const [add, setAdd] = useState(false);
     const [imagePreview, SetImagePreview] = useState("");
+    const [isFilled, setIsFilled] = useState("");
     const { 
         register, 
         handleSubmit, 
         watch,
-        reset
+        reset,
     } = useForm();
     const [memoList, setMemoList] = useState<MemoInfo[]>([]);
+    const [, setIsMemoAddedState] = useRecoilState(isMemoAddedState);
 
+    // memo 추가
     const onSubmit = async (data:MemoInfo) => {
-        try {
-            const res = await fetch("http://localhost:3001/add", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify([data, imagePreview]),
-            })
-            .then((res) =>{
-                console.log(res);
-            });
+        console.log(data.content, data.image);
+        if (!data.content && !imagePreview) {
+            setIsFilled("최소 하나의 필드를 채워주세요.");
+        } else {
+            try {
+                await fetch("http://localhost:3001/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify([props.notebook_id, data.content, imagePreview]),
+                    credentials: 'include'
+                })
+                .then((res) =>{
+                    if (res.ok) {
+                        reset();
+                        SetImagePreview("");
+                        setIsMemoAddedState(prev => !prev);
+                        alert("메모를 추가했어요!");
+                    }
+                });
+            }
+            catch (err) {
+                console.log(err);
+                alert("예상치 못한 오류가 발생했습니다.");
+            }
+            setMemoList([...memoList, data]);
         }
-        catch (err) {
-            console.log(err);
-        }
-        setMemoList([...memoList, data]);
-        reset();
-        // setAdd(false);
     };
 
-    const clickedAdd = () => setAdd(prev => !prev);
+    const clickedAdd = () => setAdd(true);
     const image = watch("image");
     useEffect(() => {
         if (image && image.length) {
             const file = image[0];
+            console.log(image, file);
             SetImagePreview(URL.createObjectURL(file));
         }
     }, [image])
@@ -52,12 +73,14 @@ export default function Addbtn() {
         <button
         type="button"
         onClick={() => clickedAdd()}
-        className="rounded bg-primary px-6 pb-2 pt-2.5 text-8xl font-medium uppercase leading-normal transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] text-blue-200 font-body water-text my-auto relative text-gray-700"
+        className="rounded bg-primary px-6 pb-2 pt-2.5 text-8xl font-medium uppercase leading-normal transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] font-body water-text my-auto relative"
         data-modal-target="addModal"
         data-modal-toggle="addModal"
         >
-            ADDDDDDDDD YOUR MEMO 
-            {/* <ReactTypingEffect text={["ADDDDDDDDDD Something"]} /> */}
+            <span className="text-white bg-blue-700">
+                ADD SOMETHING
+            {/* <ReactTypingEffect text={["ADD Something"]} /> */}
+            </span>
         </button>
         {add ? (
             // 배경
@@ -83,7 +106,7 @@ export default function Addbtn() {
                         type="button"
                         className="box-content rounded-none border-none hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
                         data-te-modal-dismiss
-                        onClick={() => setAdd(prev => !prev)}
+                        onClick={() => setAdd(false)}
                         aria-label="Close">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +139,7 @@ export default function Addbtn() {
                             {/* 닫기 버튼 */}
                             <button
                             type="button"
-                            onClick={() => setAdd(prev => !prev)}
+                            onClick={() => setAdd(false)}
                             className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-400 ml-2"
                             data-te-modal-dismiss
                             data-te-ripple-init
@@ -150,6 +173,7 @@ export default function Addbtn() {
                             </button> 
                         </div>
                     </form>
+                    { isFilled && <span className="text-red-600 text-xs">{ isFilled }</span> }
                 </div>
             </div>
         )

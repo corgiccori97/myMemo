@@ -23,7 +23,9 @@ function App() {
       .then((res) => res.json())
       .then((json) => {
           if (json.sessionExists === true) {
-              setAuthenticated(true);
+            setAuthenticated(true);
+          } else {
+            setAuthenticated(false);
           }
       })
   }, []);

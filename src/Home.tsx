@@ -9,6 +9,10 @@ interface NotebookInfo {
 function Home() {
     // 노트북 상태
     const [notebooks, setNotebooks] = useState<{notebook_id: number; notebook_name: string}[]>([]);
+    // localStorage에 노트북 title 저장(v6에서는 Link to에 props를 넘겨줄 수가 없어서 로컬스토리지 활용)
+    const saveTitle = (title:string) => {
+        localStorage.setItem('title', title);
+    };
 
     // 데이터 불러오기
     useEffect(() => {
@@ -77,7 +81,9 @@ function Home() {
         <div className="flex flex-wrap mx-auto border border-dashed rounded-[50%] w-1/2 border-gray-400 justify-center body">
             {notebooks.map((notebook) => (
                 <div className=" bg-[#ffffff] m-2 p-2 rounded-xl cursor-pointer hover:ring-2 ring-blue-400">
-                    <Link to={`/notebook/${notebook.notebook_id}`}>{notebook.notebook_name}</Link>
+                    <Link
+                    key={notebook.notebook_id} 
+                    to={`/notebook/${notebook.notebook_id}`} onClick={() => saveTitle(notebook.notebook_name)}>{notebook.notebook_name}</Link>
                 </div>
             ))}
         </div>

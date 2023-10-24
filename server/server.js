@@ -150,10 +150,10 @@ app.post('/add', (req, res) => {
     const notebook_id = req.body[0];
     let content = '';
     let imageSource = '';
-    if (req.body[1].content) {
-        content = req.body[1].content;
+    if (req.body[1]) {
+        content = req.body[1];
     };
-    if (req.body[1].image.length) {
+    if (req.body[2]) {
         imageSource = req.body[2];
     };
     db.query("INSERT INTO memochip (notebook_id, id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageSource], (err, result) => {

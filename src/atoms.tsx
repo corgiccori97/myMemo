@@ -20,6 +20,12 @@ export const authenticatedState = atom<boolean>({
 
 // 유저 아이디
 export const userIdState = atom({
-    key: 'userIdState',
+    key: "userIdState",
     default: "",
 });
+
+// 메모 추가됐는지 여부
+export const isMemoAddedState = atom<boolean>({
+    key: "added",
+    default: false,
+})
