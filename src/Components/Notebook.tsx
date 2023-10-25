@@ -10,6 +10,7 @@ interface ChipProps {
     content?: string; 
     photo_url?: string;
     index: number;
+    created_time: string;
 }
 
 const Notebook = () => {
@@ -39,13 +40,15 @@ const Notebook = () => {
         })
         .then(res => res.json())
         .then(json => {
-            json.map((j: {content: string; photo_url: string; chip_id: number }) => {
+            console.log(json);
+            json.map((j: {content: string; photo_url: string; chip_id: number; created_at: string }) => {
                 setChips(prev => [
                     ...prev,
                     {
                         index: j.chip_id,
                         content: j.content,
                         photo_url: j.photo_url,
+                        created_time: j.created_at,
                     }
                 ])
             });
@@ -64,7 +67,8 @@ const Notebook = () => {
                 <Chip 
                 index={chip.index}
                 sentence={chip.content}
-                photo_url={chip.photo_url} />
+                photo_url={chip.photo_url}
+                created_time={chip.created_time} />
             </li>
         ))}
         </ul>
