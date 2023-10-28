@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { Chip } from './Chip';
 import { useRecoilValue } from 'recoil';
-import { isMemoAddedState } from '../atoms';
+import { isListChanged } from '../atoms';
+import Modal from './ChipModal';
 
 interface ChipProps {
     content?: string; 
@@ -24,7 +25,7 @@ const Notebook = () => {
     const trackPosition = (data:any) => {
         setPosition({ x: data.x, y: data.y });
     }
-    const isAdded = useRecoilValue(isMemoAddedState);
+    const isChanged = useRecoilValue(isListChanged);
 
     // 데이터 불러오기
     useEffect(() => {
@@ -54,7 +55,7 @@ const Notebook = () => {
             });
         })
         .catch(err => console.log(err));
-    }, [, isAdded]);
+    }, [, isChanged]);
 
     return (
         <>

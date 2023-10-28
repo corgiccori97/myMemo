@@ -24,8 +24,8 @@ export const userIdState = atom({
     default: "",
 });
 
-// 메모 추가됐는지 여부
-export const isMemoAddedState = atom<boolean>({
-    key: "added",
-    default: false,
+// 메모 리스트 변경됐는지(add, delete) 여부
+export const isListChanged = atom<string>({
+    key: "memoListState",
+    default: "",
 })

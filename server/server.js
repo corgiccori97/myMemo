@@ -161,7 +161,8 @@ app.post('/add', (req, res) => {
         console.log(err);
         res.status(500).send(err);
         } else {
-        res.status(200).send(result);
+        const chipId = result.insertId;
+        res.status(200).json({chip_id: chipId});
         }
     });
 });
@@ -175,7 +176,7 @@ app.post('/paint', (req, res) => {
             res.status(200).send(result);
         }
     });
-})
+});
 
 // !메모 데이터! 가져와서 화면에 표시
 app.post('/paintm', (req, res) => {
@@ -186,7 +187,18 @@ app.post('/paintm', (req, res) => {
             res.status(200).send(result);
         }
     })
-})
+});
+
+app.post('/delete', (req, res) => {
+    db.query("DELETE FROM memochip WHERE notebook_id = ? AND chip_id = ?", [req.body[0].id, req.body[1]], (err, result) => {
+        if (!err) {
+            res.status(200).send();
+        } else {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    });
+});
 
 // 서버 연결 
 app.listen(PORT, () => {
