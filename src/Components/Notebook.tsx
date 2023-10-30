@@ -5,7 +5,6 @@ import Draggable from 'react-draggable';
 import { Chip } from './Chip';
 import { useRecoilValue } from 'recoil';
 import { isListChanged } from '../atoms';
-import Modal from './ChipModal';
 
 interface ChipProps {
     content?: string; 

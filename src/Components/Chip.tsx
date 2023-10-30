@@ -3,12 +3,19 @@ import { Rnd } from 'react-rnd';
 import { useParams } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
+import Modal from './ChipModal';
+import { useForm } from 'react-hook-form';
 
 interface ChipProps {
     sentence?:string;
     index: number;
     photo_url?: string;
     created_time: string;
+}
+
+interface MemoInfo {
+    content?: string;
+    image?: string;
 }
 
 interface PositionProps {
@@ -23,8 +30,11 @@ interface SizeProps {
 
 export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
     const [isClicked, setIsClicked] = useState(false); 
-    const [, SetDeleted] = useRecoilState(isListChanged);
+    const [editState, setEditState] = useState(false); 
+    const [, setDeleted] = useRecoilState(isListChanged);
     let notebook_id = useParams();
+
+    // 삭제
     const deleteChip = (chip_id:number) => {
         try {
             fetch('http://localhost:3001/delete', {
@@ -38,7 +48,7 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
             .then((res) => {
                 if (res.ok) {
                     alert("삭제되었어요.");
-                    SetDeleted(`deleted:${chip_id}`)
+                    setDeleted(`deleted:${chip_id}`)
                 }
             })
         } catch(err) {
@@ -67,7 +77,8 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
             { isClicked ? (
             <div className='font-bold flex space-x-2 justify-center'>
             <button type="button"
-            className='hover:text-red-500'>수정</button>
+            className='hover:text-red-500'
+            onClick={() => {setEditState(true)}}>수정</button>
             <span>|</span>
             <button type="button"
             className='hover:text-red-500 hover:ring-2'
@@ -80,9 +91,22 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
             <div className="invisible relative peer-hover:visible text-xs text-white bg-gray-400 w-1/2 m-auto before:-top-2 before:absolute before:border-l-[8px] before:border-l-transparent before:border-b-[10px] before:border-b-gray-400 before:border-r-[8px] before:border-r-transparent before:mx-[20%] rounded-lg">
                 <span className="relative">{ created_time }</span>
             </div>
-
         </Rnd>
         <br />
+        {/* 수정 */}
+        { editState ? (
+            <>
+            <Modal 
+            usage='edit'
+            notebook_id={+notebook_id.id!}
+            isOpen={editState}
+            onClose={() => setEditState(false)}
+            content={sentence}
+            image={photo_url}
+            chip_id={index}
+            />
+            </>
+        ) : "" }
         </>
     );
-}
+        }

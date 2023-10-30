@@ -190,7 +190,20 @@ app.post('/paintm', (req, res) => {
 });
 
 app.post('/delete', (req, res) => {
+    console.log(req.body);
     db.query("DELETE FROM memochip WHERE notebook_id = ? AND chip_id = ?", [req.body[0].id, req.body[1]], (err, result) => {
+        if (!err) {
+            res.status(200).send();
+        } else {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    });
+});
+
+app.post('/edit', (req, res) => {
+    console.log(req.body);
+    db.query("UPDATE memochip SET content = ? AND photo_url = ? WHERE notebook_id = ? AND chip_id = ?", [req.body[0], req.body[1], req.body[2].id, req.body[3]], (err, result) => {
         if (!err) {
             res.status(200).send();
         } else {
