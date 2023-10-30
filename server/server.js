@@ -203,7 +203,7 @@ app.post('/delete', (req, res) => {
 
 app.post('/edit', (req, res) => {
     console.log(req.body);
-    db.query("UPDATE memochip SET content = ? AND photo_url = ? WHERE notebook_id = ? AND chip_id = ?", [req.body[0], req.body[1], req.body[2].id, req.body[3]], (err, result) => {
+    db.query("UPDATE memochip SET content = ?, photo_url = ? WHERE notebook_id = ? AND chip_id = ?", [req.body[0], req.body[1], req.body[2], req.body[3]], (err, result) => {
         if (!err) {
             res.status(200).send();
         } else {

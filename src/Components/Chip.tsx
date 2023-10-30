@@ -94,19 +94,15 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
         </Rnd>
         <br />
         {/* 수정 */}
-        { editState ? (
-            <>
-            <Modal 
-            usage='edit'
-            notebook_id={+notebook_id.id!}
-            isOpen={editState}
-            onClose={() => setEditState(false)}
-            content={sentence}
-            image={photo_url}
-            chip_id={index}
-            />
-            </>
-        ) : "" }
+        <Modal 
+        usage='edit'
+        notebook_id={+notebook_id.id!}
+        isOpen={editState}
+        onClose={() => setEditState(false)}
+        content={sentence}
+        image={photo_url}
+        chip_id={index}
+        />
         </>
     );
         }
