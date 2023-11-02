@@ -9,8 +9,10 @@ import { isListChanged } from '../atoms';
 interface ChipProps {
     content?: string; 
     photo_url?: string;
+    chip_id: number;
     index: number;
     created_time: string;
+    onPositionChange?: (i:number, x:number, y:number) => void;
 }
 
 const Notebook = () => {
@@ -20,11 +22,17 @@ const Notebook = () => {
     let { id }= useParams();
     const idNumber = parseInt(id!);
     const [chips, setChips] = useState<ChipProps[]>([]);
-    const [, setPosition] = useState({ x: 0, y: 0 });
-    const trackPosition = (data:any) => {
-        setPosition({ x: data.x, y: data.y });
-    }
+    const [positions, setPositions] = useState<string[]>([]);
     const isChanged = useRecoilValue(isListChanged);
+    let chipNumber = 0;
+
+    //로컬스토리지에 저장된 chip 좌표 불러오기
+    useEffect(() => {
+        let chipPositions = localStorage.getItem('position_chip');
+        if (chipPositions) {
+            setPositions(JSON.parse(chipPositions));
+        }
+    }, []);
 
     // 데이터 불러오기
     useEffect(() => {
@@ -45,16 +53,24 @@ const Notebook = () => {
                 setChips(prev => [
                     ...prev,
                     {
-                        index: j.chip_id,
+                        index: chipNumber++,
+                        chip_id: j.chip_id,
                         content: j.content,
                         photo_url: j.photo_url,
                         created_time: j.created_at,
                     }
-                ])
+                ]);
             });
         })
         .catch(err => console.log(err));
     }, [, isChanged]);
+
+    const handlePositionChange = (index:number, x:number, y:number) => {
+        let dummyPosition = [...positions];
+        dummyPosition[index] = `${x} ${y}`;
+        setPositions(dummyPosition);
+        localStorage.setItem('position_chip', JSON.stringify(positions));
+    };
 
     return (
         <>
@@ -66,9 +82,13 @@ const Notebook = () => {
             key={chip.index}>
                 <Chip 
                 index={chip.index}
+                chip_id={chip.chip_id}
                 sentence={chip.content}
                 photo_url={chip.photo_url}
-                created_time={chip.created_time} />
+                created_time={chip.created_time}
+                onPositionChange={handlePositionChange}
+                position={positions[chip.index]}
+                />
             </li>
         ))}
         </ul>

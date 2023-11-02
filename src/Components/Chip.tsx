@@ -1,16 +1,18 @@
-import { useState } from 'react';
-import { Rnd } from 'react-rnd';
+import { useEffect, useState } from 'react';
+import { DraggableData, Rnd } from 'react-rnd';
 import { useParams } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
 import Modal from './ChipModal';
-import { useForm } from 'react-hook-form';
 
 interface ChipProps {
     sentence?:string;
+    chip_id: number;
     index: number;
     photo_url?: string;
     created_time: string;
+    onPositionChange: (i:number, x:number, y:number) => void;
+    position: string;
 }
 
 interface MemoInfo {
@@ -18,22 +20,23 @@ interface MemoInfo {
     image?: string;
 }
 
-interface PositionProps {
-    x: number;
-    y: number;
-}
-
 interface SizeProps {
     width: number;
     height: number;
 }
 
-export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
+export function Chip({sentence, chip_id, index, photo_url, created_time, onPositionChange, position}: ChipProps) {
+    let notebook_id = useParams();
     const [isClicked, setIsClicked] = useState(false); 
     const [editState, setEditState] = useState(false); 
     const [, setDeleted] = useRecoilState(isListChanged);
-    let notebook_id = useParams();
+    const [x, y] = position.split(' ').map(v => Number(v));
 
+    const handleStop = (e:any, data:DraggableData) => {
+        onPositionChange(index, data.x, data.y);
+    };
+
+    
     // 삭제
     const deleteChip = (chip_id:number) => {
         try {
@@ -59,11 +62,13 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
     return (
         <>
         <Rnd
+        // 드래그 멈추면 handleStop 함수 실행 => 각 chip의 좌표값을 localStorage에 저장(key: chip_id)
+        onDragStop={handleStop}
         default={{
-            x: 0,
-            y: 0,
-            width: 300,
-            height: 300,
+            x:x,
+            y:y,
+            width: 100,
+            height: 100
         }}
         >
             {/* hover하면 created_time, detail 뜨도록 하기  */}
@@ -82,7 +87,7 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
             <span>|</span>
             <button type="button"
             className='hover:text-red-500 hover:ring-2'
-            onClick={() => deleteChip(index)}>
+            onClick={() => deleteChip(chip_id)}>
                 삭제
             </button>                
             </div>
@@ -101,7 +106,7 @@ export function Chip({sentence, index, photo_url, created_time}: ChipProps) {
         onClose={() => setEditState(false)}
         content={sentence}
         image={photo_url}
-        chip_id={index}
+        chip_id={chip_id}
         />
         </>
     );
