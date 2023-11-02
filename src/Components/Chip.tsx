@@ -12,7 +12,7 @@ interface ChipProps {
     photo_url?: string;
     created_time: string;
     onPositionChange: (i:number, x:number, y:number) => void;
-    position: string;
+    position?: string;
 }
 
 interface MemoInfo {
@@ -30,7 +30,8 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
     const [isClicked, setIsClicked] = useState(false); 
     const [editState, setEditState] = useState(false); 
     const [, setDeleted] = useRecoilState(isListChanged);
-    const [x, y] = position.split(' ').map(v => Number(v));
+    // const [x, y] = position.split(' ').map(v => Number(v));
+    const [x, y] = (position ? position.split(' ').map(v => Number(v)) : [0, 0]);
 
     const handleStop = (e:any, data:DraggableData) => {
         onPositionChange(index, data.x, data.y);
