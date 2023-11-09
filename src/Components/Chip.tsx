@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { DraggableData, Rnd } from 'react-rnd';
+import { useEffect, useRef, useState } from 'react';
+import { DraggableData, ResizableDelta, Rnd, RndResizeCallback } from 'react-rnd';
 import { useParams } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
@@ -9,35 +9,70 @@ interface ChipProps {
     sentence?:string;
     chip_id: number;
     index: number;
-    photo_url?: string;
+    photo_url?: Blob;
     created_time: string;
     onPositionChange: (i:number, x:number, y:number) => void;
+    onSizeChange: (i:number, size:number, width: string, height: string) => void;
     position?: string;
+    font_size?:number;
+    element_size: string;
 }
 
-interface MemoInfo {
-    content?: string;
-    image?: string;
-}
-
-interface SizeProps {
-    width: number;
-    height: number;
-}
-
-export function Chip({sentence, chip_id, index, photo_url, created_time, onPositionChange, position}: ChipProps) {
+export function Chip({sentence, chip_id, index, photo_url, created_time, onPositionChange, onSizeChange, position, font_size, element_size}: ChipProps) {
     let notebook_id = useParams();
     const [isClicked, setIsClicked] = useState(false); 
     const [editState, setEditState] = useState(false); 
     const [, setDeleted] = useRecoilState(isListChanged);
-    // const [x, y] = position.split(' ').map(v => Number(v));
+    const [encodedImage, setEncodedImage] = useState();
     const [x, y] = (position ? position.split(' ').map(v => Number(v)) : [0, 0]);
+    const fontSize = (font_size ? font_size : 16);
+    console.log(fontSize);
+    const [width, height] = (element_size ? element_size.split(' ').map(v => Number(v)) : [100, 100]);
 
-    const handleStop = (e:any, data:DraggableData) => {
+    const handlePosition = (e:any, data:DraggableData) => {
         onPositionChange(index, data.x, data.y);
     };
 
-    
+    const handleFontSize = (e:any, dir:any, ref:HTMLElement, delta:ResizableDelta) => {
+        console.log(ref.style.width, ref.style.height);
+        // 폰트 사이즈 deltaRatio에 따라 변경하기
+        let newFontSize = 0;
+        const deltaRatio = Math.sqrt(
+            delta.width * delta.width + delta.height * delta.height
+        );
+        if (delta.width + delta.height > 0) {
+            newFontSize = Math.floor(fontSize + deltaRatio / 5);
+        } else {
+            newFontSize = Math.floor(fontSize - deltaRatio / 5);
+        }
+        onSizeChange(index, newFontSize, ref.style.width, ref.style.height);
+    };
+
+    // 이미지 파일 base64 인코딩
+    const encodeFileToBase64 = (image: Blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                    resolve(reader.result);
+                } else {
+                    reject(new Error('Failed to convert Blob to base64'));
+                }
+            };
+            reader.onerror = reject;
+            if (image) {
+                reader.readAsDataURL(image);
+            }
+        });
+    };
+
+    // 화면에 표시될 이미지 url 만들기
+    // if (photo_url) {
+    //     console.log(photo_url, photo_url instanceof Blob);
+    //     // let result = encodeFileToBase64(photo_url);
+    //     // console.log(result);
+    // };
+
     // 삭제
     const deleteChip = (chip_id:number) => {
         try {
@@ -63,25 +98,33 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
     return (
         <>
         <Rnd
-        // 드래그 멈추면 handleStop 함수 실행 => 각 chip의 좌표값을 localStorage에 저장(key: chip_id)
-        onDragStop={handleStop}
+        // 드래그 멈추면 handlePosition 함수 실행 => 각 chip의 좌표값을 localStorage에 저장(key: chip_id)
+        onDragStop={handlePosition}
+        onResizeStop={handleFontSize}
+        minWidth={100}
+        minHeight={100}
         default={{
-            x:x,
-            y:y,
-            width: 100,
-            height: 100
+            x: x, 
+            y: y,
+            width: width,
+            height: height,
         }}
+        className={`peer mb-4 relative p-2 ${isClicked ? 'border border-dashed border-red-400 rounded-md animate-pulse  text-gray-500 active:brightness-75' : ''}`}
+        onClick={() => setIsClicked(prev => !prev)}
         >
-            {/* hover하면 created_time, detail 뜨도록 하기  */}
+            <img 
+            className={`w-${width}`}
+            src={ encodedImage } alt="" />
+            <span style={{ fontSize: `${fontSize}px` }}>{sentence}</span>
+            {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}
             <div 
-            onClick={() => setIsClicked(prev => !prev)}
-            className={`peer mb-4 relative p-2 brightness-100 ${isClicked ? 'border border-dashed border-red-400 rounded-md animate-pulse  text-gray-500 active:brightness-75' : ''}`}>
-                <img src={ photo_url } alt="" />
-                <span>{ sentence }</span>
-                </div>            
-            {/* 클릭했을 때 수정, 삭제 버튼 */}
-            { isClicked ? (
-            <div className='font-bold flex space-x-2 justify-center'>
+            className="invisible relative peer-hover:visible text-xs text-white bg-gray-400 w-1/2 m-auto before:-top-2 before:absolute before:border-l-[8px] before:border-l-transparent before:border-b-[10px] before:border-b-gray-400 before:border-r-[8px] before:border-r-transparent before:mx-[20%] rounded-lg">
+                <span className="relative">{ created_time }</span>
+            </div>
+        </Rnd>
+        {/* 클릭했을 때 수정, 삭제 버튼 */}
+        { isClicked ? (
+        <div className='absolute font-bold flex space-x-2 justify-center'>
             <button type="button"
             className='hover:text-red-500'
             onClick={() => {setEditState(true)}}>수정</button>
@@ -91,13 +134,8 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             onClick={() => deleteChip(chip_id)}>
                 삭제
             </button>                
-            </div>
-            ) : "" }
-            {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}
-            <div className="invisible relative peer-hover:visible text-xs text-white bg-gray-400 w-1/2 m-auto before:-top-2 before:absolute before:border-l-[8px] before:border-l-transparent before:border-b-[10px] before:border-b-gray-400 before:border-r-[8px] before:border-r-transparent before:mx-[20%] rounded-lg">
-                <span className="relative">{ created_time }</span>
-            </div>
-        </Rnd>
+        </div>
+        ) : "" }
         <br />
         {/* 수정 */}
         <Modal 
@@ -106,7 +144,7 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         isOpen={editState}
         onClose={() => setEditState(false)}
         content={sentence}
-        image={photo_url}
+        // image={photo_url}
         chip_id={chip_id}
         />
         </>

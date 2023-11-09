@@ -145,17 +145,24 @@ app.post('/notebook', (req, res) => {
     });
 });
 
+const multer = require('multer');
+const upload = multer();
+
 // Notebook => memo 추가
-app.post('/add', (req, res) => {
-    const notebook_id = req.body[0];
-    let content = '';
-    let imageSource = '';
-    if (req.body[1]) {
-        content = req.body[1];
-    };
-    if (req.body[2]) {
-        imageSource = req.body[2];
-    };
+app.post('/add', upload.single('image'), (req, res) => {
+    // console.log(req.body);
+    // const notebook_id = req.body[0];
+    // let content = '';
+    // let imageSource = null;
+    // if (req.body[1]) {
+    //     content = req.body[1];
+    // };
+    // if (req.body[2]) {
+    //     imageSource = req.body[2];
+    // };
+    const notebook_id = Number(req.body.notebook_id);
+    const content = req.body.content;
+    const imageSource = req.file ? req.file.buffer : null;
     db.query("INSERT INTO memochip (notebook_id, id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageSource], (err, result) => {
         if (err) {
         console.log(err);
@@ -181,6 +188,7 @@ app.post('/paint', (req, res) => {
 // !메모 데이터! 가져와서 화면에 표시
 app.post('/paintm', (req, res) => {
     db.query("SELECT * FROM memochip WHERE id = ? AND notebook_id = ?", [req.session.userId, req.body], (err, result) => {
+        console.log(result);
         if (err) {
             res.status(500).send("error selecting memochips");
         } else {

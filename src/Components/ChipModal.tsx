@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
@@ -25,16 +25,39 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
         watch,
         reset,
     } = useForm();
+    // image preview
     const [imagePreview, setImagePreview] = useState("");
+    // Blob 객체로 바꾼 이미지
+    const [convertedImage, setConvertedImage] = useState<Promise<Blob> | null>(null);
     const [isFilled, setIsFilled] = useState("");
     const [, setIsMemoAddedState] = useRecoilState(isListChanged);
 
-    // 이미지 blob 객체로 만들기
+    // 이미지 blob 객체로 만들기(데이터베이스용)
     const formImage = watch('image');
+    const convertToBlob = (image:File):Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (reader.result instanceof ArrayBuffer) {
+                    resolve(new Blob([reader.result], {type: image.type}));
+                } else {
+                    reject(new Error("Failed to convert image to Blob"));
+                }
+            };
+            reader.onerror = (err) => {
+                reject(err);
+            };
+            reader.readAsArrayBuffer(image);
+        });
+    };
+
     useEffect(() => {
         if (formImage && formImage.length) {
             const file = formImage[0];
-            setImagePreview(URL.createObjectURL(file));
+            const convertedImage = convertToBlob(file);
+            const imageURL = URL.createObjectURL(file);
+            setImagePreview(imageURL);
+            setConvertedImage(convertedImage);
         }
     }, [formImage]);
 
@@ -44,41 +67,75 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
             setIsFilled("최소 하나의 필드를 채워주세요.");
         } else {
             // 추가할 경우
+            const formData = new FormData();
+            formData.append("notebook_id", notebook_id+"");
+            if (data.content) {
+                formData.append("content", data.content);
+            };
+            if (convertedImage) {
+                formData.append("image", await convertedImage, "image.jpg");
+            };
+            console.log(formData);
             if (usage === 'add') {
                 try {
-                    await fetch("http://localhost:3001/add", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify([notebook_id, data.content, imagePreview]),
-                        credentials: 'include',
-                    })
-                    .then((res) => res.json())
-                    .then((json) => {
-                        if (json) {
-                            reset();
-                            setImagePreview("");
-                            setIsMemoAddedState(`added ${json.chip_id}`);
-                            alert("메모를 추가했어요!");
-                            
-                        }
-                    })
+                    const response = await fetch('http://localhost:3001/add', {
+                        method: 'POST',
+                        body: formData,
+                        credentials:'include',
+                    });
+                    if (response.ok) {
+                        const json = await response.json();
+                        reset();
+                        setImagePreview("");
+                        setIsMemoAddedState(`add ${json.chip_id}`);
+                        alert("메모를 추가했어요!");
+                    } else {
+                        console.error("Error while adding memo");
+                        alert("메모 추가 중 오류가 발생했어요");
+                    }
                 } catch (err) {
                     console.log(err);
-                    alert("예상치 못한 오류가 발생했습니다.");
-                }           
-            } 
+                    alert("예상치 못한 오류가 발생했어요");
+                }
+            }
+            // if (usage === 'add') {
+            //     try {
+            //         const imageBlob = await convertedImage; // Blob 기다렸다가
+            //         console.log(imageBlob);
+            //         await fetch("http://localhost:3001/add", {
+            //             method: "POST",
+            //             headers: {
+            //                 "Content-Type": "application/json",
+            //             },
+            //             body: JSON.stringify([notebook_id, data.content, imageBlob]),
+            //             credentials: 'include',
+            //         })
+            //         .then((res) => res.json())
+            //         .then((json) => {
+            //             if (json) {
+            //                 reset();
+            //                 setImagePreview("");
+            //                 setIsMemoAddedState(`added ${json.chip_id}`);
+            //                 alert("메모를 추가했어요!");
+                            
+            //             }
+            //         })
+            //     } catch (err) {
+            //         console.log(err);
+            //         alert("예상치 못한 오류가 발생했습니다.");
+            //     }           
+            // } 
             // 수정할 경우 
             else if (usage === 'edit') {
                 try {
+                    const imageBlob = await convertedImage; // Blob 기다렸다가
                     fetch('http://localhost:3001/edit', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         credentials: 'include',
-                        body: JSON.stringify([data.content, imagePreview, notebook_id, chip_id])              
+                        body: JSON.stringify([data.content, imageBlob, notebook_id, chip_id])              
                     })
                     .then((res) => {
                         if (res.ok) {
@@ -164,7 +221,8 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     <span className='p-2'>|</span>
                     {/* 사진 삭제 */}
                     <button
-                    className='hover:text-lime-600 mr-1 flex'>
+                    className='hover:text-lime-600 mr-1 flex'
+                    onClick={() => {setImagePreview("")}}>
                         <svg fill="none" 
                         stroke="currentColor"
                         strokeWidth="1.5" 
