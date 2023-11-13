@@ -101,8 +101,8 @@ const Notebook = () => {
 
     return (
         <>
+        <h1 className="text-4xl font-extrabold"> {title} </h1>
         <Addbtn notebook_id = { idNumber } />
-        <h1 className="text-2xl font-extrabold"> {title} </h1>
         <ul className="space-y-3 space-x-3">
         {chips.map((chip) => (
             <li 

@@ -159,7 +159,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
         className="fixed flex left-0 top-0 h-full w-screen p-2 z-[1055] overflow-y-auto overflow-x-hidden outline-none bg-black bg-opacity-50">
             {/* form 컨테이너 */}
             <div 
-            className="relative w-1/2 rounded-xl p-5 mx-auto bg-gray-100"
+            className="w-1/2 self-center rounded-xl p-5 mx-auto bg-gray-100"
             data-modal-hide="authentication-modal"
             aria-hidden="true"
             aria-labelledby="addModalLabel">
@@ -169,7 +169,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     <h1
                     className="text-2xl font-medium leading-normal text-neutral-800 dark:text-neutral-200"
                     id="exampleModalLabel">
-                        add your MEMO
+                        메모를 추가하세요(･ω･)b
                     </h1>
                     {/* X 버튼 */}
                     <button
@@ -204,7 +204,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                 {...register("content", { required: false })} placeholder="문구 입력">{ content }</textarea>
                 {/* 사진 첨부  / 삭제 아이콘 */}
                 <div className='flex justify-end items-center'>
-                    <label className="hover:text-lime-600 flex">
+                    <label className="hover:text-yellow-600 flex">
                         <input 
                         type="file" 
                         hidden 
@@ -221,7 +221,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     <span className='p-2'>|</span>
                     {/* 사진 삭제 */}
                     <button
-                    className='hover:text-lime-600 mr-1 flex'
+                    className='hover:text-yellow-600 mr-1 flex'
                     onClick={() => {setImagePreview("")}}>
                         <svg fill="none" 
                         stroke="currentColor"

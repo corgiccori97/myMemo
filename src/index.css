@@ -113,21 +113,23 @@ a {
 
 .leaf:nth-child(1) {
   border-radius: 50%;
-  top: -10rem;
-  left: -5rem;
+  top: -10%;
+  left: -5%;
   background-color: #ffec7f; /* 노랑 파스텔 색상 */
 }
 
 .leaf:nth-child(2) {
   border-radius: 100%;
-  top: 20rem;
+  top: 30%;
   left: 40%;
   background-color: #ffdddd; /* 핑크 파스텔 색상 */
+  z-index: 0;
 }
 
 .leaf:nth-child(3) {
   border-radius: 50%;
-  top: 5rem;
-  left: 60rem;
+  top: -5%;
+  left: 65%;
   background-color: #a8e6cf; /* 연두 파스텔 색상 */
+  z-index:-1;
 }

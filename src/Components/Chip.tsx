@@ -26,15 +26,14 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
     const [encodedImage, setEncodedImage] = useState();
     const [x, y] = (position ? position.split(' ').map(v => Number(v)) : [0, 0]);
     const fontSize = (font_size ? font_size : 16);
-    console.log(fontSize);
-    const [width, height] = (element_size ? element_size.split(' ').map(v => Number(v)) : [100, 100]);
+    let [width, height] = (element_size ? element_size.split(' ').map(v => Number(v)) : [100, 100]);
 
     const handlePosition = (e:any, data:DraggableData) => {
         onPositionChange(index, data.x, data.y);
     };
 
     const handleFontSize = (e:any, dir:any, ref:HTMLElement, delta:ResizableDelta) => {
-        console.log(ref.style.width, ref.style.height);
+        // console.log(ref.style.width, ref.style.height);
         // 폰트 사이즈 deltaRatio에 따라 변경하기
         let newFontSize = 0;
         const deltaRatio = Math.sqrt(
@@ -44,6 +43,7 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             newFontSize = Math.floor(fontSize + deltaRatio / 5);
         } else {
             newFontSize = Math.floor(fontSize - deltaRatio / 5);
+            if (newFontSize < 16) newFontSize = 16;
         }
         onSizeChange(index, newFontSize, ref.style.width, ref.style.height);
     };
@@ -101,8 +101,8 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         // 드래그 멈추면 handlePosition 함수 실행 => 각 chip의 좌표값을 localStorage에 저장(key: chip_id)
         onDragStop={handlePosition}
         onResizeStop={handleFontSize}
-        minWidth={100}
-        minHeight={100}
+        minWidth={50}
+        minHeight={50}
         default={{
             x: x, 
             y: y,
@@ -124,7 +124,7 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         </Rnd>
         {/* 클릭했을 때 수정, 삭제 버튼 */}
         { isClicked ? (
-        <div className='absolute font-bold flex space-x-2 justify-center'>
+        <div className='font-bold flex space-x-2 justify-center'>
             <button type="button"
             className='hover:text-red-500'
             onClick={() => {setEditState(true)}}>수정</button>
