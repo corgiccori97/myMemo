@@ -131,10 +131,26 @@ app.post('/check-session', (req, res) => {
     }
 });
 
+const multer = require('multer');
+const path = require('path');
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, '../public/images')
+        },
+        filename: function (req, file, cb) {
+            const ext = path.extname(file.originalname);
+            cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+        }
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
+
 // Notebook 추가
-app.post('/notebook', (req, res) => {
+app.post('/notebook', upload.single('thumbnail'), (req, res) => {
     const title = req.body.title;
-    db.query("INSERT INTO notebooks (id, notebook_name) VALUES (?, ?)", [req.session.userId, title], (err) => {
+    const thumbnailURL = req.file ? `/images/thumbnail/${req.file.filename}` : null;
+    db.query("INSERT INTO notebooks (id, notebook_name, thumbnail) VALUES (?, ?, ?)", [req.session.userId, title, thumbnailURL], (err) => {
         if (err) {
             res.status(500).send('error creating notebook');
         } else {
@@ -145,25 +161,12 @@ app.post('/notebook', (req, res) => {
     });
 });
 
-const multer = require('multer');
-const upload = multer();
-
 // Notebook => memo 추가
 app.post('/add', upload.single('image'), (req, res) => {
-    // console.log(req.body);
-    // const notebook_id = req.body[0];
-    // let content = '';
-    // let imageSource = null;
-    // if (req.body[1]) {
-    //     content = req.body[1];
-    // };
-    // if (req.body[2]) {
-    //     imageSource = req.body[2];
-    // };
     const notebook_id = Number(req.body.notebook_id);
     const content = req.body.content;
-    const imageSource = req.file ? req.file.buffer : null;
-    db.query("INSERT INTO memochip (notebook_id, id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageSource], (err, result) => {
+    const imageURL = req.file ? `/images/${req.file.filename}` : null;
+    db.query("INSERT INTO memochip (notebook_id, id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageURL], (err, result) => {
         if (err) {
         console.log(err);
         res.status(500).send(err);

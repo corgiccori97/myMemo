@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { Chip } from './Chip';
 import { useRecoilValue } from 'recoil';
 import { isListChanged } from '../atoms';
-import { locals } from '../../server/server';
 
 interface ChipProps {
     content?: string; 
-    photo_url?: Blob;
+    photo_url?: string;
     chip_id: number;
     index: number;
     created_time: string;
@@ -63,7 +62,7 @@ const Notebook = () => {
         .then(res => res.json())
         .then(json => {
             console.log(json);
-            json.map((j: {content: string; photo_url: Blob; chip_id: number; created_at: string }) => {
+            json.map((j: {content: string; photo_url: string; chip_id: number; created_at: string }) => {
                 setChips(prev => [
                     ...prev,
                     {
@@ -90,7 +89,7 @@ const Notebook = () => {
     // 크기 설정
     const handleSizeChange = (index:number, size:number, width: string, height: string) => {
         let dummyFontSize = [...fontSizes];
-        let dummyElementSize = [...elementSizes]
+        let dummyElementSize = [...elementSizes];
         dummyFontSize[index] = size + "";
         dummyElementSize[index] = `${width} ${height}`;
         setFontSizes(dummyFontSize);
@@ -101,27 +100,31 @@ const Notebook = () => {
 
     return (
         <>
-        <h1 className="text-4xl font-extrabold"> {title} </h1>
+        <h1 className="text-4xl font-extrabold flex-none"> {title} </h1>
         <Addbtn notebook_id = { idNumber } />
-        <ul className="space-y-3 space-x-3">
-        {chips.map((chip) => (
-            <li 
-            key={chip.index}>
-                <Chip 
-                index={chip.index}
-                chip_id={chip.chip_id}
-                sentence={chip.content}
-                photo_url={chip.photo_url}
-                created_time={chip.created_time}
-                onPositionChange={handlePositionChange}
-                onSizeChange={handleSizeChange}
-                position={positions[chip.index]}
-                font_size={Number(fontSizes[chip.index])}
-                element_size={elementSizes[chip.index]}
-                />
-            </li>
-        ))}
-        </ul>
+        <div 
+        id="boundary"
+        className="grow">
+            <ul className="space-y-3 space-x-3">
+            {chips.map((chip) => (
+                <li 
+                key={chip.index}>
+                    <Chip 
+                    index={chip.index}
+                    chip_id={chip.chip_id}
+                    sentence={chip.content}
+                    photo_url={chip.photo_url}
+                    created_time={chip.created_time}
+                    onPositionChange={handlePositionChange}
+                    onSizeChange={handleSizeChange}
+                    position={positions[chip.index]}
+                    font_size={Number(fontSizes[chip.index])}
+                    element_size={elementSizes[chip.index]}
+                    />
+                </li>
+            ))}
+            </ul>
+        </div>
         </>
     ); 
 }
