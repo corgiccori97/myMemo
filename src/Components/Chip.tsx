@@ -9,7 +9,7 @@ interface ChipProps {
     sentence?:string;
     chip_id: number;
     index: number;
-    photo_url?: Blob;
+    photo_url?: string;
     created_time: string;
     onPositionChange: (i:number, x:number, y:number) => void;
     onSizeChange: (i:number, size:number, width: string, height: string) => void;
@@ -23,16 +23,16 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
     const [isClicked, setIsClicked] = useState(false); 
     const [editState, setEditState] = useState(false); 
     const [, setDeleted] = useRecoilState(isListChanged);
-    const [encodedImage, setEncodedImage] = useState();
     const [x, y] = (position ? position.split(' ').map(v => Number(v)) : [0, 0]);
     const fontSize = (font_size ? font_size : 16);
-    let [width, height] = (element_size ? element_size.split(' ').map(v => Number(v)) : [100, 100]);
+    let [width, height] = (element_size ? element_size.split(' ').map(v => parseInt(v, 10)) : [100, 100]);
+    console.log(index, width, height, element_size);
 
     const handlePosition = (e:any, data:DraggableData) => {
         onPositionChange(index, data.x, data.y);
     };
 
-    const handleFontSize = (e:any, dir:any, ref:HTMLElement, delta:ResizableDelta) => {
+    const handleSize = (e:any, dir:any, ref:HTMLElement, delta:ResizableDelta) => {
         // console.log(ref.style.width, ref.style.height);
         // 폰트 사이즈 deltaRatio에 따라 변경하기
         let newFontSize = 0;
@@ -47,31 +47,6 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         }
         onSizeChange(index, newFontSize, ref.style.width, ref.style.height);
     };
-
-    // 이미지 파일 base64 인코딩
-    const encodeFileToBase64 = (image: Blob) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                if (typeof reader.result === 'string') {
-                    resolve(reader.result);
-                } else {
-                    reject(new Error('Failed to convert Blob to base64'));
-                }
-            };
-            reader.onerror = reject;
-            if (image) {
-                reader.readAsDataURL(image);
-            }
-        });
-    };
-
-    // 화면에 표시될 이미지 url 만들기
-    // if (photo_url) {
-    //     console.log(photo_url, photo_url instanceof Blob);
-    //     // let result = encodeFileToBase64(photo_url);
-    //     // console.log(result);
-    // };
 
     // 삭제
     const deleteChip = (chip_id:number) => {
@@ -100,31 +75,33 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         <Rnd
         // 드래그 멈추면 handlePosition 함수 실행 => 각 chip의 좌표값을 localStorage에 저장(key: chip_id)
         onDragStop={handlePosition}
-        onResizeStop={handleFontSize}
+        onResizeStop={handleSize}
         minWidth={50}
         minHeight={50}
         default={{
-            x: x, 
-            y: y,
-            width: width,
-            height: height,
+            x:x,
+            y:y,
+            width:width,
+            height:height
         }}
-        className={`peer mb-4 relative p-2 ${isClicked ? 'border border-dashed border-red-400 rounded-md animate-pulse  text-gray-500 active:brightness-75' : ''}`}
+        bounds={"#boundary"}
+        className={`peer realtive mb-4 p-2 ${isClicked ? 'border border-dashed border-red-500 animate-pulse  text-gray-500 active:brightness-65' : ''}`}
         onClick={() => setIsClicked(prev => !prev)}
         >
+            { photo_url ? (
             <img 
-            className={`w-${width}`}
-            src={ encodedImage } alt="" />
+            className={`w-[${width}px] h-[${height / 2}px]`}
+            src={ process.env.PUBLIC_URL + photo_url} alt="" />
+            ) : "" }
             <span style={{ fontSize: `${fontSize}px` }}>{sentence}</span>
             {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}
             <div 
-            className="invisible relative peer-hover:visible text-xs text-white bg-gray-400 w-1/2 m-auto before:-top-2 before:absolute before:border-l-[8px] before:border-l-transparent before:border-b-[10px] before:border-b-gray-400 before:border-r-[8px] before:border-r-transparent before:mx-[20%] rounded-lg">
-                <span className="relative">{ created_time }</span>
+            className="peer-hover:visible text-xs text-white bg-gray-400 w-1/2 m-auto before:top-24 before:absolute before:border-l-[8px] before:border-l-transparent before:border-b-[10px] before:border-b-gray-400 before:border-r-[8px] before:border-r-transparent before:mx-[20%] rounded-lg">
+                <span>{ created_time }</span>
             </div>
-        </Rnd>
         {/* 클릭했을 때 수정, 삭제 버튼 */}
         { isClicked ? (
-        <div className='font-bold flex space-x-2 justify-center'>
+        <div className='font-bold space-x-2 '>
             <button type="button"
             className='hover:text-red-500'
             onClick={() => {setEditState(true)}}>수정</button>
@@ -136,6 +113,7 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             </button>                
         </div>
         ) : "" }
+        </Rnd>
         <br />
         {/* 수정 */}
         <Modal 
@@ -144,7 +122,7 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         isOpen={editState}
         onClose={() => setEditState(false)}
         content={sentence}
-        // image={photo_url}
+        image={photo_url}
         chip_id={chip_id}
         />
         </>

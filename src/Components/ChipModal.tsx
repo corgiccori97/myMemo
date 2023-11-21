@@ -27,37 +27,20 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
     } = useForm();
     // image preview
     const [imagePreview, setImagePreview] = useState("");
-    // Blob 객체로 바꾼 이미지
-    const [convertedImage, setConvertedImage] = useState<Promise<Blob> | null>(null);
+    // 서버로 보낼 이미지 파일
+    const [convertedImage, setConvertedImage] = useState<File | null>(null);
     const [isFilled, setIsFilled] = useState("");
     const [, setIsMemoAddedState] = useRecoilState(isListChanged);
 
     // 이미지 blob 객체로 만들기(데이터베이스용)
     const formImage = watch('image');
-    const convertToBlob = (image:File):Promise<Blob> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                if (reader.result instanceof ArrayBuffer) {
-                    resolve(new Blob([reader.result], {type: image.type}));
-                } else {
-                    reject(new Error("Failed to convert image to Blob"));
-                }
-            };
-            reader.onerror = (err) => {
-                reject(err);
-            };
-            reader.readAsArrayBuffer(image);
-        });
-    };
 
     useEffect(() => {
         if (formImage && formImage.length) {
             const file = formImage[0];
-            const convertedImage = convertToBlob(file);
             const imageURL = URL.createObjectURL(file);
             setImagePreview(imageURL);
-            setConvertedImage(convertedImage);
+            setConvertedImage(file);
         }
     }, [formImage]);
 
@@ -73,7 +56,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                 formData.append("content", data.content);
             };
             if (convertedImage) {
-                formData.append("image", await convertedImage, "image.jpg");
+                formData.append("image", convertedImage, "image.jpg");
             };
             console.log(formData);
             if (usage === 'add') {
@@ -98,33 +81,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     alert("예상치 못한 오류가 발생했어요");
                 }
             }
-            // if (usage === 'add') {
-            //     try {
-            //         const imageBlob = await convertedImage; // Blob 기다렸다가
-            //         console.log(imageBlob);
-            //         await fetch("http://localhost:3001/add", {
-            //             method: "POST",
-            //             headers: {
-            //                 "Content-Type": "application/json",
-            //             },
-            //             body: JSON.stringify([notebook_id, data.content, imageBlob]),
-            //             credentials: 'include',
-            //         })
-            //         .then((res) => res.json())
-            //         .then((json) => {
-            //             if (json) {
-            //                 reset();
-            //                 setImagePreview("");
-            //                 setIsMemoAddedState(`added ${json.chip_id}`);
-            //                 alert("메모를 추가했어요!");
-                            
-            //             }
-            //         })
-            //     } catch (err) {
-            //         console.log(err);
-            //         alert("예상치 못한 오류가 발생했습니다.");
-            //     }           
-            // } 
+
             // 수정할 경우 
             else if (usage === 'edit') {
                 try {
@@ -251,7 +208,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     닫기
                     </button>
                 </div>
-            </form>
+                </form>
             { isFilled && <span className="text-red-600 text-xs">{ isFilled }</span> }
             </div>
         </div>
