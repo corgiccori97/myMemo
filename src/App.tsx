@@ -31,13 +31,13 @@ function App() {
   }, []);
 
   return (
-      <div className="w-full max-h-full color-bg">
-        <div className="leaf leaf-1"></div>
+      <div className="w-screen max-h-full bg-[url('./assets/background.JPG')] bg-cover">
+        {/* <div className="leaf leaf-1"></div>
         <div className="leaf leaf-2"></div>
         <div className="leaf leaf-3"></div>
         <div className="leaf leaf-4"></div>
-        <div className="leaf leaf-5"></div>
-        <div className="h-screen text-center relative">
+        <div className="leaf leaf-5"></div> */}
+        <div className="h-screen text-center relative flex flex-col">
           <Header authenticated={ useRecoilValue(authenticatedState) } />
           <Routes>
             <Route path="/" element={<Home />}></Route>
