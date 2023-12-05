@@ -7,13 +7,12 @@ interface HeaderProps {
 function Header(props: HeaderProps) {
     console.log(props.authenticated);
     return (
-        <div className='flex justify-between relative'>
-            <div className="flex space-x-3">
+        <div className='flex justify-between relative mt-2 mx-2'>
+            <div className="flex space-x-3 font-bold text-gray-400">
                 { props.authenticated ? (
                     // 회원
                     <>
                     <Link to="/signout">로그아웃</Link>
-                    <span>마이페이지</span>
                     </>
                 ) : (
                     // 비회원

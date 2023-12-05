@@ -85,7 +85,7 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             height:height
         }}
         bounds={"#boundary"}
-        className={`peer realtive mb-4 p-2 ${isClicked ? 'border border-dashed border-red-500 animate-pulse  text-gray-500 active:brightness-65' : ''}`}
+        className={`realtive group mb-4 p-2 ${isClicked ? 'border border-dashed border-red-500 animate-pulse  text-gray-500 active:brightness-65' : ''}`}
         onClick={() => setIsClicked(prev => !prev)}
         >
             { photo_url ? (
@@ -94,9 +94,9 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             src={ process.env.PUBLIC_URL + photo_url} alt="" />
             ) : "" }
             <span style={{ fontSize: `${fontSize}px` }}>{sentence}</span>
-            {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}
+            {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}            
             <div 
-            className="peer-hover:visible text-xs text-white bg-gray-400 w-1/2 m-auto before:top-24 before:absolute before:border-l-[8px] before:border-l-transparent before:border-b-[10px] before:border-b-gray-400 before:border-r-[8px] before:border-r-transparent before:mx-[20%] rounded-lg">
+            className="invisible group-hover:visible text-xs text-white bg-gray-400 w-1/2 mx-auto mt-2 rounded-lg break-words">
                 <span>{ created_time }</span>
             </div>
         {/* 클릭했을 때 수정, 삭제 버튼 */}

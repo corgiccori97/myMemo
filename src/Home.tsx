@@ -3,12 +3,15 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import ReactTypingEffect from 'react-typing-effect';
 import NotebookModal from './Components/NotebookModal';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { authenticatedState } from './atoms';
 
 interface NotebookInfo {
     title: string;
 }
 
 function Home() {
+    const isAuthenticated = useRecoilValue(authenticatedState);
     // 노트북 상태
     const [notebooks, setNotebooks] = useState<{notebook_id: number; notebook_name: string; thumbnail: string}[]>([]);
     // localStorage에 노트북 title 저장(v6에서는 Link to에 props를 넘겨줄 수가 없어서 로컬스토리지 활용)
@@ -48,12 +51,18 @@ function Home() {
         >
             Add NOTEBOOK here
         </button>
-        <NotebookModal 
-        usage='add'
-        isOpen={add}
-        onClose={() => setAdd(false)}
-        />
-        <div className="flex flex-wrap mx-auto border border-dashed rounded-[50%] w-1/2 border-gray-400 justify-center body">
+        { isAuthenticated ?  (
+            <NotebookModal 
+            usage='add'
+            isOpen={add}
+            onClose={() => setAdd(false)}
+            />
+        ) : (
+            <>
+            <span>로그인하고 노트북을 추가해 보세요!</span>
+            </>
+        )}
+        <div className="flex flex-wrap mx-auto border border-dashed rounded-[50%] w-1/2 border-gray-400 justify-center body px-15 py-8">
             {notebooks.map((notebook) => (
                 <div className='bg-white m-2 p-2 rounded-xl cursor-pointer hover:font-extrabold'>
                     <img src={`./public/${notebook.thumbnail}`} alt='' />
