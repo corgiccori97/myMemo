@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
+import Darkbg from './Darkbg';
 
 interface ModalProps {
     usage: string;
@@ -111,9 +112,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
     if (!isOpen) return null;
     return (
         <>
-        <div
-        id="Modal"
-        className="fixed flex left-0 top-0 h-full w-screen p-2 z-[1055] overflow-y-auto overflow-x-hidden outline-none bg-black bg-opacity-50">
+        <Darkbg>
             {/* form 컨테이너 */}
             <div 
             className="w-1/2 self-center rounded-xl p-5 mx-auto bg-gray-100"
@@ -211,7 +210,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                 </form>
             { isFilled && <span className="text-red-600 text-xs">{ isFilled }</span> }
             </div>
-        </div>
+        </Darkbg>
         </>
     )
 };
