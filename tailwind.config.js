@@ -11,6 +11,9 @@ module.exports = {
       body: ['Shrikhand', 'cursive'],
     },
   },
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  },
   plugins: [],
 }
 
