@@ -149,7 +149,7 @@ const upload = multer({
 // Notebook 추가
 app.post('/notebook', upload.single('thumbnail'), (req, res) => {
     const title = req.body.title;
-    const thumbnailURL = req.file ? `/images/thumbnail/${req.file.filename}` : null;
+    const thumbnailURL = req.file ? `images/${req.file.filename}` : null;
     db.query("INSERT INTO notebooks (id, notebook_name, thumbnail) VALUES (?, ?, ?)", [req.session.userId, title, thumbnailURL], (err) => {
         if (err) {
             res.status(500).send('error creating notebook');
@@ -208,6 +208,27 @@ app.post('/delete', (req, res) => {
         } else {
             console.log(err);
             res.status(500).send(err);
+        }
+    });
+});
+
+app.post('/deletenote', (req, res) => {
+    const id = +req.body[0];
+    db.query("DELETE FROM memochip WHERE notebook_id = ?", [id], (error, results) => {
+        if (!error) {
+            console.log("deleted memo");
+            db.query("DELETE FROM notebooks WHERE notebook_id = ?", [id], (err, result) => {
+                if (!err) {
+                    console.log("노트북이랑 메모들 삭제 성공");
+                    res.status(200).send(result);
+                } else {
+                    console.log(err);
+                    res.status(500).send(err);
+                }
+            })
+        } else {
+            console.log(error);
+            res.status(500).send(error);
         }
     });
 });
