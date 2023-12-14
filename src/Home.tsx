@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import ReactTypingEffect from 'react-typing-effect';
 import NotebookModal from './Components/NotebookModal';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { authenticatedState } from './atoms';
 
 interface NotebookInfo {
@@ -14,9 +12,15 @@ function Home() {
     const isAuthenticated = useRecoilValue(authenticatedState);
     // 노트북 상태
     const [notebooks, setNotebooks] = useState<{notebook_id: number; notebook_name: string; thumbnail: string}[]>([]);
+
     // localStorage에 노트북 title 저장(v6에서는 Link to에 props를 넘겨줄 수가 없어서 로컬스토리지 활용)
-    const saveTitle = (title:string) => {
+    const saveTitle = (title:string, thumbnail: string) => {
         localStorage.setItem('title', title);
+        if (thumbnail) {
+            localStorage.setItem('backgroundURL', thumbnail);
+        } else {
+            localStorage.setItem('backgroundURL', '');
+        }
     };
     const [add, setAdd] = useState(false);
     
@@ -68,11 +72,13 @@ function Home() {
         />
         <div className="flex flex-wrap mx-auto border border-dashed rounded-[50%] w-1/2 border-gray-400 justify-center body px-15 py-8">
             {notebooks.map((notebook) => (
-                <div className='m-2 p-2 rounded-xl cursor-pointer hover:font-extrabold stamp-effect'>
-                    <img src={`assets/background.JPG`} alt='' />
+                <div 
+                key={notebook.notebook_id}
+                className="m-2 p-2 rounded-xl cursor-pointer hover:font-extrabold stamp-effect">
+
                     <Link
                     key={notebook.notebook_id} 
-                    to={`/notebook/${notebook.notebook_id}`} onClick={() => saveTitle(notebook.notebook_name)}>{notebook.notebook_name}</Link>
+                    to={`/notebook/${notebook.notebook_id}`} onClick={() => saveTitle(notebook.notebook_name, notebook.thumbnail)}>{notebook.notebook_name}</Link>
                 </div>
             ))}
         </div>
