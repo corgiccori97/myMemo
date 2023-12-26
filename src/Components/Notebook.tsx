@@ -3,7 +3,7 @@ import Addbtn from './Add';
 import EditMenu from './EditMenu';
 import { useState, useEffect, useRef } from 'react';
 import { Chip } from './Chip';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
 import html2canvas from 'html2canvas';
 
@@ -22,8 +22,7 @@ const Notebook = () => {
     const title = localStorage.getItem('title');
     let backgroundURL = localStorage.getItem('backgroundURL');
     if (backgroundURL) {
-        backgroundURL = "../public/" + backgroundURL;
-        console.log(backgroundURL);
+        backgroundURL = "../assets/" + backgroundURL;
     }
     // id 이용해서 memochip들 가져오기
     let { id }= useParams();
@@ -35,9 +34,8 @@ const Notebook = () => {
     const [elementSizes, setElementSizes] = useState<string[]>([]);
     // 폰트 사이즈
     const [fontSizes, setFontSizes] = useState<string[]>([]);
-    // recoil
-    const isChanged = useRecoilValue(isListChanged);
-
+    let isChanged = useRecoilValue(isListChanged);
+    console.log(isChanged);
     let [copyClicked, SetCopyClicked] = useState(false);
     let chipNumber = 0;
 
@@ -70,7 +68,6 @@ const Notebook = () => {
         })
         .then(res => res.json())
         .then(json => {
-            console.log(json);
             json.map((j: {content: string; photo_url: string; chip_id: number; created_at: string }) => {
                 setChips(prev => [
                     ...prev,
@@ -110,7 +107,11 @@ const Notebook = () => {
     // 클립보드 저장
     const divRef = useRef<HTMLDivElement>(null);
     const clipboardDownload = async () => {
+        SetCopyClicked(true);
         if (!divRef.current) return;
+        if (!divRef.current?.style.background) {
+            divRef.current.style.setProperty('background', 'url())');
+        }
         try {
             const div = divRef.current;
             const canvas = await html2canvas(div, {scale: 2});
@@ -118,6 +119,7 @@ const Notebook = () => {
                 if (blob) {
                     navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
                     alert("클립보드에 복사되었어요!!!");
+                    SetCopyClicked(false);
                 }
             });
         } catch (err) {
@@ -136,12 +138,13 @@ const Notebook = () => {
             onCopyClicked={clipboardDownload} />
         </div>
         <Addbtn notebook_id = { idNumber } />
-        { backgroundURL && <img src={backgroundURL} alt="background" />}
         {/* boundary 영역 시작 */}
         <div 
         ref={divRef}
         id="boundary"
-        className="grow">
+        style={{ backgroundImage: `url(${backgroundURL})` }} 
+        className="grow w-screen h-screen bg-cover">
+            <img src={"../assets/images/thumbnail1702538520031.jpg"} alt="test" />
             <ul className="space-y-3 space-x-3">
             {chips.map((chip) => (
                 <li 

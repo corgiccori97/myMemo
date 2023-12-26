@@ -1,6 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import Darkbg from './Darkbg';
+import { useRecoilState } from 'recoil';
+import { isListChanged } from '../atoms';
 
 interface NotebookModalInfo {
     usage: string;
@@ -28,6 +30,9 @@ const NotebookModal = ({ usage, isOpen, onClose }:NotebookModalInfo) => {
     const [dataImage, setDataImage] = useState<File | null>(null);
     
     const formImage = watch('thumbnail');
+    // recoil
+    const [isChanged, SetIsChanged] = useRecoilState(isListChanged);
+    console.log(isChanged);
 
     useEffect(() => {
         if (formImage && formImage.length) {
@@ -58,6 +63,7 @@ const NotebookModal = ({ usage, isOpen, onClose }:NotebookModalInfo) => {
                     const json = await response.json();
                     reset();
                     setImagePreview("");
+                    SetIsChanged(`notebook added`);
                     alert("노트북이 추가됐어요!")
                 } else {
 
@@ -112,9 +118,10 @@ const NotebookModal = ({ usage, isOpen, onClose }:NotebookModalInfo) => {
             type="text"
             className="block bg-gray-100 w-full px-0 text-sm text-gray-800 border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" 
             {...register("title", { 
-                required: "*제목을 입력하세요!"
+                required: "*제목을 입력하세요!",
             })} 
-            placeholder="노트북 이름" />
+            placeholder="노트북 이름" 
+            maxLength={20} />
             {/* 사진 첨부  / 삭제 아이콘 */}
             <div className='flex justify-end items-center'>
                 <label className="hover:text-yellow-600 flex">
