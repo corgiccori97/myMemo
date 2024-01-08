@@ -14,6 +14,7 @@ function Join() {
         register,
         watch,
         handleSubmit,
+        reset,
         formState: { errors }
     } = useForm<UserInfo>({
         mode: "onChange",
@@ -22,24 +23,28 @@ function Join() {
     const navigate = useNavigate();
     const onSubmit = async (data:UserInfo) => {
         try {
-            const response = await fetch('http://localhost:3001/join', {
+            await fetch('http://localhost:3001/join', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
-            });
+            })
+            .then(response => {
             if (response.ok) {
                 alert("회원가입이 완료되었어요!");
                 isJoinedSet(true);
                 navigate("/signin");
             } else {
-                console.log(response);
-            } 
+                alert("이미 존재하는 이메일입니다.");
+                reset();
+            }
+            })
         }
         catch (error) {
             console.log("error")
         }
+
     };
 
     return (
@@ -99,6 +104,11 @@ function Join() {
                     <br />
                     <input {...register("passwordConfirm", {
                         required: "*필수항목입니다",
+                        validate: (val:string) => {
+                            if (watch("password") != val) {
+                                return "비밀번호가 일치하지 않습니다.";
+                            }
+                        }
                     })} 
                     type="password" 
                     name="passwordConfirm"

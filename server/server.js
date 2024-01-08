@@ -102,7 +102,7 @@ app.post('/join', (req, res) => {
     db.query(insertQuery, [email, password], (err, result) => {
         if (err) {
         console.error('Error executing MySQL query: ', err);
-        res.status(500).send(err);
+        res.status(500).send("duplicate entry");
         } else {
         console.log('Data inserted successfully');
         res.status(200).send('Data inserted successfully');
@@ -136,7 +136,7 @@ const path = require('path');
 const upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
-            cb(null, '../public/images')
+            cb(null, '../src/assets/images/')
         },
         filename: function (req, file, cb) {
             const ext = path.extname(file.originalname);
