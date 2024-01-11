@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import NotebookModal from './Components/NotebookModal';
 import { useRecoilValue } from 'recoil';
-import { authenticatedState } from './atoms';
+import { authenticatedState, isListChanged } from './atoms';
 
 interface NotebookInfo {
     title: string;
@@ -10,6 +10,7 @@ interface NotebookInfo {
 
 function Home() {
     const isAuthenticated = useRecoilValue(authenticatedState);
+    let listState = useRecoilValue(isListChanged);
     // 노트북 상태
     const [notebooks, setNotebooks] = useState<{notebook_id: number; notebook_name: string; thumbnail: string}[]>([]);
 
@@ -54,8 +55,7 @@ function Home() {
                 }))
             ]);
         }) 
-    }, []);
-    console.log(notebooks);
+    }, [, listState]);
     return (
         <div className='mt-[10%]'>
         <button
