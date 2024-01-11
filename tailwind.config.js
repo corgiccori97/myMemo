@@ -6,6 +6,7 @@ module.exports = {
   ],
   theme: {
     extend: {},
+    
     fontFamily: {
       // heading: ['Londrina Outline', 'cursive'],
       body: ['Shrikhand', 'cursive'],

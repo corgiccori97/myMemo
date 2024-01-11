@@ -13,28 +13,30 @@ const EditMenu = ({ onCopyClicked }:EditMenuProps) => {
 
     // 노트북 삭제
     const deleteNotebook = () => {
-        try {
-            fetch('http://localhost:3001/deletenote', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify([notebook_id.id]), 
-            })
-            .then((res) => {
-                if (res.ok) {
-                    alert("삭제되었습니다.");
-                    navigate("/");
-                }
-            })
-        } catch(err) {
-            console.log(err);
-        }
+        if (window.confirm("정말 삭제하시겠어요?")) {
+            try {
+                fetch('http://localhost:3001/deletenote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify([notebook_id.id]), 
+                })
+                .then((res) => {
+                    if (res.ok) {
+                        alert("삭제되었습니다.");
+                        navigate("/");
+                    }
+                })
+            } catch(err) {
+                console.log(err);
+            }
+        } 
     };
     return (
         <>
-        <button className="w-10 h-10 stamp-effect animate-bounce bg-yellow-400 rounded-full z-10"
+        <button className="w-10 h-10 stamp-effect animate-bounce rounded-full z-10"
         onClick={() => setOpen(prev => !prev)}>
             <svg fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59"></path>
@@ -47,7 +49,7 @@ const EditMenu = ({ onCopyClicked }:EditMenuProps) => {
             animate={{ scaleX: 1, x: '-5%' }}
             exit={{ scaleX: 0, x: '-5%'}}
             transition={{ duration: 0.3 }}
-            className="flex justify-center items-center bg-yellow-400 text-black font-semibold p-2 rounded-full text-sm z-0">
+            className="flex justify-center items-center bg-gray-300 text-black font-semibold p-2 rounded-full text-sm z-0">
                 <button className="flex self-center items-center stamp-effect hover:text-green-800" onClick={onCopyClicked}>
                 <svg 
                 className="w-4 h-4"

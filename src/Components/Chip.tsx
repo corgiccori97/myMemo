@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DraggableData, ResizableDelta, Rnd, RndResizeCallback } from 'react-rnd';
+import { DraggableData, ResizableDelta, Rnd } from 'react-rnd';
 import { useParams } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { isListChanged } from '../atoms';
@@ -26,14 +26,18 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
     const [x, y] = (position ? position.split(' ').map(v => Number(v)) : [0, 0]);
     const fontSize = (font_size ? font_size : 16);
     let [width, height] = (element_size ? element_size.split(' ').map(v => parseInt(v, 10)) : [100, 100]);
-    console.log(index, width, height, element_size);
+    // 로컬스토리지
+    let local_font_size = JSON.parse(localStorage.getItem('font_size_chip') || '[]');
+    let local_element_size = JSON.parse(localStorage.getItem('element_size_chip') || '[]');
+    let local_position = JSON.parse(localStorage.getItem('position_chip') || '[]');
+
+    console.log(photo_url);
 
     const handlePosition = (e:any, data:DraggableData) => {
         onPositionChange(index, data.x, data.y);
     };
 
     const handleSize = (e:any, dir:any, ref:HTMLElement, delta:ResizableDelta) => {
-        // console.log(ref.style.width, ref.style.height);
         // 폰트 사이즈 deltaRatio에 따라 변경하기
         let newFontSize = 0;
         const deltaRatio = Math.sqrt(
@@ -62,6 +66,10 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             .then((res) => {
                 if (res.ok) {
                     alert("삭제되었어요.");
+                    // 로컬스토리지 삭제
+                    deleteLocalStorageValue('font_size_chip', local_font_size);
+                    deleteLocalStorageValue('element_size_chip', local_element_size);
+                    deleteLocalStorageValue('position_chip', local_position);
                     setDeleted(`deleted:${chip_id}`)
                 }
             })
@@ -69,7 +77,15 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
             alert(err);
         }
     };
-
+    localStorage.removeItem('size_chip');
+    const deleteLocalStorageValue = (key:string, arr:[]) => {
+        console.log(arr);
+        arr.splice(index, 1);
+        console.log(arr);
+        localStorage.removeItem(key);
+        localStorage.setItem(key, JSON.stringify(arr));
+    };
+    console.log(photo_url);
     return (
         <>
         <Rnd
@@ -86,12 +102,21 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         }}
         bounds={"#boundary"}
         className={`realtive group mb-4 p-2 ${isClicked ? 'border border-dashed border-red-500 animate-pulse  text-gray-500 active:brightness-65' : ''}`}
+        style={{ backgroundImage: photo_url }}
         onClick={() => setIsClicked(prev => !prev)}
         >
+            <div 
+            className='bg-gradient-to-l hover:bg-gradient-to-r'
+            style={{ backgroundImage: photo_url }}
+            >
+                {photo_url && 
+                <img src={require(`../assets${photo_url}`)} alt="test" />
+                }
+            </div>
             { photo_url ? (
             <img 
             className={`w-[${width}px] h-[${height / 2}px]`}
-            src={ process.env.PUBLIC_URL + photo_url} alt="" />
+            src={ process.env.PUBLIC_URL + photo_url } alt="" />
             ) : "" }
             <span style={{ fontSize: `${fontSize}px` }}>{sentence}</span>
             {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}            
@@ -115,7 +140,6 @@ export function Chip({sentence, chip_id, index, photo_url, created_time, onPosit
         ) : "" }
         </Rnd>
         <br />
-        {/* 수정 */}
         <Modal 
         usage='edit'
         notebook_id={+notebook_id.id!}

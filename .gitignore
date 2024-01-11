@@ -25,3 +25,5 @@ yarn-error.log*
 sessions
 
 /public/images
+
+/src/assets/images

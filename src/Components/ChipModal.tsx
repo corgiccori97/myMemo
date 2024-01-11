@@ -31,7 +31,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
     // 서버로 보낼 이미지 파일
     const [convertedImage, setConvertedImage] = useState<File | null>(null);
     const [isFilled, setIsFilled] = useState("");
-    const [, setIsMemoAddedState] = useRecoilState(isListChanged);
+    const [, setIsListChanged] = useRecoilState(isListChanged);
 
     // 이미지 blob 객체로 만들기(데이터베이스용)
     const formImage = watch('image');
@@ -71,7 +71,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                         const json = await response.json();
                         reset();
                         setImagePreview("");
-                        setIsMemoAddedState(`add ${json.chip_id}`);
+                        setIsListChanged(`add ${json.chip_id}`);
                         alert("메모를 추가했어요!");
                     } else {
                         console.error("Error while adding memo");
@@ -98,7 +98,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     .then((res) => {
                         if (res.ok) {
                             alert("메모가 수정되었어요.");
-                            setIsMemoAddedState(`edited: ${chip_id}`);
+                            setIsListChanged(`edited: ${chip_id}`);
                         }
                     })
                 } catch(err) {
@@ -157,7 +157,12 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                 <textarea
                 className="block bg-gray-100 w-full px-0 text-sm text-gray-800 border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" 
                 rows={8} 
-                {...register("content", { required: false })} placeholder="문구 입력">{ content }</textarea>
+                placeholder="문구 입력"
+                {...register("content", {
+                    required: false,
+                    maxLength: 200, })}>
+                    { content }
+                </textarea>
                 {/* 사진 첨부  / 삭제 아이콘 */}
                 <div className='flex justify-end items-center'>
                     <label className="hover:text-yellow-600 flex">

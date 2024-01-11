@@ -31,8 +31,7 @@ const NotebookModal = ({ usage, isOpen, onClose }:NotebookModalInfo) => {
     
     const formImage = watch('thumbnail');
     // recoil
-    const [isChanged, SetIsChanged] = useRecoilState(isListChanged);
-    console.log(isChanged);
+    let [, setIsListChanged] = useRecoilState(isListChanged);
 
     useEffect(() => {
         if (formImage && formImage.length) {
@@ -60,13 +59,12 @@ const NotebookModal = ({ usage, isOpen, onClose }:NotebookModalInfo) => {
                     credentials: 'include',
                 });
                 if (response.ok) {
-                    const json = await response.json();
+                    // await response.json();
                     reset();
                     setImagePreview("");
-                    SetIsChanged(`notebook added`);
+                    setIsListChanged(`notebook added: ${data.title}`);
                     alert("노트북이 추가됐어요!")
                 } else {
-
                     alert("노트북 추가 중 오류가 발생했습니다.");
                 }
             } catch(err) {
@@ -76,6 +74,7 @@ const NotebookModal = ({ usage, isOpen, onClose }:NotebookModalInfo) => {
     };
 
     if (!isOpen) return null;
+    
     return (
         <>
         <Darkbg>
