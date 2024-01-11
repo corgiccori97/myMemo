@@ -3,9 +3,14 @@ import Addbtn from './Add';
 import EditMenu from './EditMenu';
 import { useState, useEffect, useRef } from 'react';
 import { Chip } from './Chip';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue  } from 'recoil';
 import { isListChanged } from '../atoms';
 import html2canvas from 'html2canvas';
+import { AnimatePresence, motion } from 'framer-motion';
+
+interface Props {
+    onClick: React.MouseEventHandler<HTMLButtonElement>;
+}
 
 interface ChipProps {
     content?: string; 
@@ -21,9 +26,8 @@ const Notebook = () => {
     // 로컬스토리지에 저장된 notebook 제목
     const title = localStorage.getItem('title');
     let backgroundURL = localStorage.getItem('backgroundURL');
-    if (backgroundURL) {
-        backgroundURL = "../assets/" + backgroundURL;
-    }
+    // 헤더 접고 펼 수 있도록(flipped, setFlipped) 구현
+    const [flipped, setFlipped] = useState<boolean>(true);
     // id 이용해서 memochip들 가져오기
     let { id }= useParams();
     const idNumber = parseInt(id!);
@@ -35,7 +39,6 @@ const Notebook = () => {
     // 폰트 사이즈
     const [fontSizes, setFontSizes] = useState<string[]>([]);
     let isChanged = useRecoilValue(isListChanged);
-    console.log(isChanged);
     let [copyClicked, SetCopyClicked] = useState(false);
     let chipNumber = 0;
 
@@ -109,9 +112,6 @@ const Notebook = () => {
     const clipboardDownload = async () => {
         SetCopyClicked(true);
         if (!divRef.current) return;
-        if (!divRef.current?.style.background) {
-            divRef.current.style.setProperty('background', 'url())');
-        }
         try {
             const div = divRef.current;
             const canvas = await html2canvas(div, {scale: 2});
@@ -129,22 +129,48 @@ const Notebook = () => {
 
     return (
         <>
-        <div className="flex self-center space-x-3">
-            <h1 
-            className="text-4xl font-extrabold"> 
-            {title} 
-            </h1>
-            <EditMenu 
-            onCopyClicked={clipboardDownload} />
-        </div>
-        <Addbtn notebook_id = { idNumber } />
+        <button
+        onClick={() => setFlipped(prev => !prev)}
+        className="cursor-pointer stamp-effect p-2"
+        >
+            <svg 
+            className="w-4 h-4"
+            data-slot="icon" 
+            fill="none" 
+            strokeWidth="1.5" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"></path>
+            </svg>
+        </button>
+        <AnimatePresence>
+            {flipped && 
+            <motion.div
+            animate={{ scaleY: flipped ? 1 : 0 }}>
+                <div className="flex self-center space-x-3">
+                    <h1 
+                    className="text-4xl font-extrabold"> 
+                    {title} 
+                    </h1>
+                    <EditMenu 
+                    onCopyClicked={clipboardDownload} />
+                </div>
+                <Addbtn notebook_id = { idNumber } />
+            </motion.div>
+            }
+        </AnimatePresence>
         {/* boundary 영역 시작 */}
         <div 
         ref={divRef}
         id="boundary"
-        style={{ backgroundImage: `url(${backgroundURL})` }} 
-        className="grow w-screen h-screen bg-cover">
-            <img src={"../assets/images/thumbnail1702538520031.jpg"} alt="test" />
+        className="grow w-[100%] h-[100%] bg-cover"
+        >
+            {backgroundURL && 
+                <img 
+                className="w-[100%] h-[100%] bg-auto"
+                src={require(`../assets/${backgroundURL}`)} alt="background" />
+            }
             <ul className="space-y-3 space-x-3">
             {chips.map((chip) => (
                 <li 
