@@ -5,10 +5,14 @@ module.exports = {
     "./src/Component/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'default': "url('/src/assets/background.JPG')"
+      }
+    },
     
     fontFamily: {
-      // heading: ['Londrina Outline', 'cursive'],
+      heading: ['Londrina Outline', 'cursive'],
       body: ['Shrikhand', 'cursive'],
     },
   },

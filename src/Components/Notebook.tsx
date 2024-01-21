@@ -129,48 +129,59 @@ const Notebook = () => {
 
     return (
         <>
-        <button
-        onClick={() => setFlipped(prev => !prev)}
-        className="cursor-pointer stamp-effect p-2"
-        >
-            <svg 
-            className="w-4 h-4"
-            data-slot="icon" 
-            fill="none" 
-            strokeWidth="1.5" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24" 
-            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"></path>
-            </svg>
-        </button>
-        <AnimatePresence>
-            {flipped && 
-            <motion.div
-            animate={{ scaleY: flipped ? 1 : 0 }}>
-                <div className="flex self-center space-x-3">
-                    <h1 
-                    className="text-4xl font-extrabold"> 
-                    {title} 
-                    </h1>
-                    <EditMenu 
-                    onCopyClicked={clipboardDownload} />
-                </div>
-                <Addbtn notebook_id = { idNumber } />
-            </motion.div>
-            }
-        </AnimatePresence>
+        {/* header 접고 펴는 버튼 */}
+        <div
+        className="flex space-x-3 items-center justify-center absolute text-gray-500 rounded-md">
+            <button
+            onClick={() => setFlipped(prev => !prev)}
+            className="w-10 h-10 cursor-pointer stamp-effect p-2">
+                <svg 
+                className=""
+                data-slot="icon" 
+                fill="none" 
+                strokeWidth="1.5" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"></path>
+                </svg>
+            </button>
+            <EditMenu 
+            onCopyClicked={clipboardDownload} />
+        </div>
         {/* boundary 영역 시작 */}
         <div 
         ref={divRef}
         id="boundary"
-        className="grow w-[100%] h-[100%] bg-cover"
+        className="grow w-screen max-h-screen bg-cover bg-default"
         >
+            <AnimatePresence>
+            {flipped && 
+            <>      
+            <motion.div
+            key="header"
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            exit={{ scaleY: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex self-center space-x-3 flex-col">
+                <h1 
+                className="text-4xl font-extrabold"> 
+                {title} 
+                </h1>
+                <Addbtn 
+                notebook_id = { idNumber } 
+                text="☞ Add here" />
+            </motion.div>
+            </>
+            }
+            </AnimatePresence>
             {backgroundURL && 
                 <img 
-                className="w-[100%] h-[100%] bg-auto"
+                className="w-screen h-[100%] bg-cover"
                 src={require(`../assets/${backgroundURL}`)} alt="background" />
             }
+
             <ul className="space-y-3 space-x-3">
             {chips.map((chip) => (
                 <li 
@@ -191,6 +202,14 @@ const Notebook = () => {
             ))}
             </ul>
         </div>
+        {!flipped && 
+            <div className="absolute bottom-2 right-2 cursor-pointer rounded-full">
+                <Addbtn 
+                notebook_id = { idNumber } 
+                text="☜" 
+                />     
+            </div>
+        }
         </>
     ); 
 }

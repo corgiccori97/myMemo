@@ -8,6 +8,7 @@ interface MemoInfo {
 
 interface propsInfo {
     notebook_id: number;
+    text: string;
 }
 
 export default function Addbtn(props:propsInfo) {
@@ -23,8 +24,7 @@ export default function Addbtn(props:propsInfo) {
         data-modal-toggle="addModal"
         >
             <span>
-                ☞ Add here
-            {/* <ReactTypingEffect text={["ADD Something"]} /> */}
+                {props.text}
             </span>
         </button>
         <Modal 

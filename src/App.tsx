@@ -31,9 +31,10 @@ function App() {
   }, []);
 
   return (
-      <div className="w-screen max-h-full bg-[url('./assets/background.JPG')] bg-cover">
+      <div className="w-screen max-h-full bg-default bg-cover">
+      {/* <div className="w-screen max-h-full bg-[url('./assets/background.JPG')] bg-cover"> */}
         <div className="h-screen text-center relative flex flex-col">
-          <Header authenticated={ useRecoilValue(authenticatedState) } />
+          {/* <Header authenticated={ useRecoilValue(authenticatedState) } /> */}
           <Routes>
             <Route path="/" element={<Home />}></Route>
             <Route path="/join" element={<Join />}></Route>             
