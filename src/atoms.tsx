@@ -29,3 +29,9 @@ export const isListChanged = atom<string>({
     key: "memoListState",
     default: "",
 })
+
+// 다크모드
+export const atomTheme = atom<string>({
+    key: "darkMode",
+    default: "light",
+})

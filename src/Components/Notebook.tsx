@@ -4,13 +4,9 @@ import EditMenu from './EditMenu';
 import { useState, useEffect, useRef } from 'react';
 import { Chip } from './Chip';
 import { useRecoilValue  } from 'recoil';
-import { isListChanged } from '../atoms';
+import { atomTheme, isListChanged } from '../atoms';
 import html2canvas from 'html2canvas';
 import { AnimatePresence, motion } from 'framer-motion';
-
-interface Props {
-    onClick: React.MouseEventHandler<HTMLButtonElement>;
-}
 
 interface ChipProps {
     content?: string; 
@@ -28,6 +24,9 @@ const Notebook = () => {
     let backgroundURL = localStorage.getItem('backgroundURL');
     // 헤더 접고 펼 수 있도록(flipped, setFlipped) 구현
     const [flipped, setFlipped] = useState<boolean>(true);
+    const setFlippedState = (state:boolean) => {
+        setFlipped(state);
+    }
     // id 이용해서 memochip들 가져오기
     let { id }= useParams();
     const idNumber = parseInt(id!);
@@ -39,8 +38,9 @@ const Notebook = () => {
     // 폰트 사이즈
     const [fontSizes, setFontSizes] = useState<string[]>([]);
     let isChanged = useRecoilValue(isListChanged);
-    let [copyClicked, SetCopyClicked] = useState(false);
+    let [, SetCopyClicked] = useState(false);
     let chipNumber = 0;
+    let theme = useRecoilValue(atomTheme);
 
     //로컬스토리지에 저장된 chip 좌표 불러오기
     useEffect(() => {
@@ -130,25 +130,10 @@ const Notebook = () => {
     return (
         <>
         {/* header 접고 펴는 버튼 */}
-        <div
-        className="flex space-x-3 items-center justify-center absolute text-gray-500 rounded-md">
-            <button
-            onClick={() => setFlipped(prev => !prev)}
-            className="w-10 h-10 cursor-pointer stamp-effect p-2">
-                <svg 
-                className=""
-                data-slot="icon" 
-                fill="none" 
-                strokeWidth="1.5" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"></path>
-                </svg>
-            </button>
-            <EditMenu 
-            onCopyClicked={clipboardDownload} />
-        </div>
+        <EditMenu 
+        onCopyClicked={clipboardDownload}
+        onFlipClicked={setFlippedState} 
+        />
         {/* boundary 영역 시작 */}
         <div 
         ref={divRef}
@@ -185,7 +170,8 @@ const Notebook = () => {
             <ul className="space-y-3 space-x-3">
             {chips.map((chip) => (
                 <li 
-                key={chip.index}>
+                key={chip.index}
+                className={`${theme === "light" ? 'text-gray-800' : 'text-white'}`}>
                     <Chip 
                     index={chip.index}
                     chip_id={chip.chip_id}
@@ -203,7 +189,7 @@ const Notebook = () => {
             </ul>
         </div>
         {!flipped && 
-            <div className="absolute bottom-2 right-2 cursor-pointer rounded-full">
+            <div className={`absolute bottom-2 right-2 cursor-pointer rounded-full ${theme === "light" ? 'text-gray-800' : 'text-white'}`}>
                 <Addbtn 
                 notebook_id = { idNumber } 
                 text="☜" 
