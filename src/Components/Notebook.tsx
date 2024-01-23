@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 interface ChipProps {
     content?: string; 
+    detail_content?: string;
     photo_url?: string;
     chip_id: number;
     index: number;
@@ -71,13 +72,14 @@ const Notebook = () => {
         })
         .then(res => res.json())
         .then(json => {
-            json.map((j: {content: string; photo_url: string; chip_id: number; created_at: string }) => {
+            json.map((j: {content: string; detail_content: string; photo_url: string; chip_id: number; created_at: string }) => {
                 setChips(prev => [
                     ...prev,
                     {
                         index: chipNumber++,
                         chip_id: j.chip_id,
                         content: j.content,
+                        detail_content: j.detail_content,
                         photo_url: j.photo_url,
                         created_time: j.created_at,
                     }
@@ -129,7 +131,7 @@ const Notebook = () => {
 
     return (
         <>
-        {/* header 접고 펴는 버튼 */}
+        {/* 노트북 접고 펴는 버튼, 수정 삭제 버튼 등 bar */}
         <EditMenu 
         onCopyClicked={clipboardDownload}
         onFlipClicked={setFlippedState} 
@@ -138,7 +140,7 @@ const Notebook = () => {
         <div 
         ref={divRef}
         id="boundary"
-        className="grow w-screen max-h-screen bg-cover bg-default"
+        className="grow w-screen max-h-screen bg-cover bg-default overflow-hidden"
         >
             <AnimatePresence>
             {flipped && 
@@ -166,25 +168,22 @@ const Notebook = () => {
                 className="w-screen h-[100%] bg-cover"
                 src={require(`../assets/${backgroundURL}`)} alt="background" />
             }
-
-            <ul className="space-y-3 space-x-3">
+            <ul>
             {chips.map((chip) => (
-                <li 
+                <Chip 
                 key={chip.index}
-                className={`${theme === "light" ? 'text-gray-800' : 'text-white'}`}>
-                    <Chip 
-                    index={chip.index}
-                    chip_id={chip.chip_id}
-                    sentence={chip.content}
-                    photo_url={chip.photo_url}
-                    created_time={chip.created_time}
-                    onPositionChange={handlePositionChange}
-                    onSizeChange={handleSizeChange}
-                    position={positions[chip.index]}
-                    font_size={Number(fontSizes[chip.index])}
-                    element_size={elementSizes[chip.index]}
-                    />
-                </li>
+                index={chip.index}
+                chip_id={chip.chip_id}
+                content={chip.content}
+                detail_content={chip.detail_content}
+                photo_url={chip.photo_url}
+                created_time={chip.created_time}
+                onPositionChange={handlePositionChange}
+                onSizeChange={handleSizeChange}
+                position={positions[chip.index]}
+                font_size={Number(fontSizes[chip.index])}
+                element_size={elementSizes[chip.index]}
+                />
             ))}
             </ul>
         </div>

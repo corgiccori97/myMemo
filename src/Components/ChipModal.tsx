@@ -10,16 +10,18 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     content?: string;
+    detailContent?: string;
     image?: string;
     chip_id?: number;
 };
 
 interface MemoInfo {
     content?: string;
+    detailContent?: string;
     image?: string;
 }
 
-const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }: ModalProps) => {
+const Modal = ({ usage, notebook_id, isOpen, onClose, content, detailContent, image, chip_id }: ModalProps) => {
     const {
         register,
         handleSubmit,
@@ -46,11 +48,11 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
     }, [formImage]);
 
     const onSubmit = async (data:MemoInfo) => {
-        // add인지, edit인지 수정 => 일단 add로만
+        // 사용자가 아무것도 입력하지 않은 경우
         if (!data.content && !imagePreview) {
             setIsFilled("최소 하나의 필드를 채워주세요.");
         } else {
-            // 추가할 경우
+            // 추가할 경우(usage === 'add')
             const formData = new FormData();
             formData.append("notebook_id", notebook_id+"");
             if (data.content) {
@@ -59,7 +61,9 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
             if (convertedImage) {
                 formData.append("image", convertedImage, "image.jpg");
             };
-            console.log(formData);
+            if (data.detailContent) {
+                formData.append("detail_content", data.detailContent);
+            };
             if (usage === 'add') {
                 try {
                     const response = await fetch('http://localhost:3001/add', {
@@ -75,7 +79,8 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                         alert("메모를 추가했어요!");
                     } else {
                         console.error("Error while adding memo");
-                        alert("메모 추가 중 오류가 발생했어요");
+                        alert("사진이 너무 커서 추가할 수 없어요 (；′⌒`)");
+                        reset();
                     }
                 } catch (err) {
                     console.log(err);
@@ -83,7 +88,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                 }
             }
 
-            // 수정할 경우 
+            // 수정할 경우 (usage === 'edit')
             else if (usage === 'edit') {
                 try {
                     const imageBlob = await convertedImage; // Blob 기다렸다가
@@ -93,7 +98,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                             'Content-Type': 'application/json',
                         },
                         credentials: 'include',
-                        body: JSON.stringify([data.content, imageBlob, notebook_id, chip_id])              
+                        body: JSON.stringify([data.content, data.detailContent, imageBlob, notebook_id, chip_id])              
                     })
                     .then((res) => {
                         if (res.ok) {
@@ -156,15 +161,27 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                 <img src={imagePreview} alt="" />
                 <textarea
                 className="block bg-gray-100 w-full px-0 text-sm text-gray-800 border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" 
-                rows={8} 
+                rows={6} 
                 placeholder="문구 입력"
                 {...register("content", {
-                    required: false,
-                    maxLength: 200, })}>
+                    required: false
+                })}
+                maxLength={200}>
                     { content }
                 </textarea>
+                <textarea
+                className="block bg-gray-100 w-full px-0 text-sm text-gray-800 border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
+                placeholder="more...(마우스를 위에 갖다대면 보일 상세 내용)"
+                rows={6}
+                {...register("detailContent", {
+                    required: false,
+                })}
+                maxLength={200}
+                >
+                    { detailContent }
+                </textarea>
                 {/* 사진 첨부  / 삭제 아이콘 */}
-                <div className='flex justify-end items-center'>
+                <div className='flex justify-end items-center text-gray-800'>
                     <label className="hover:text-yellow-600 flex">
                         <input 
                         type="file" 
@@ -182,7 +199,7 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, image, chip_id }:
                     <span className='p-2'>|</span>
                     {/* 사진 삭제 */}
                     <button
-                    className='hover:text-yellow-600 mr-1 flex'
+                    className='hover:text-yellow-600 mr-1 flex space-x-2'
                     onClick={() => {setImagePreview("")}}>
                         <svg fill="none" 
                         stroke="currentColor"

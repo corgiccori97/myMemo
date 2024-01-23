@@ -163,10 +163,12 @@ app.post('/notebook', upload.single('thumbnail'), (req, res) => {
 
 // Notebook => memo 추가
 app.post('/add', upload.single('image'), (req, res) => {
+    console.log(req.body);
     const notebook_id = Number(req.body.notebook_id);
     const content = req.body.content;
     const imageURL = req.file ? `/images/${req.file.filename}` : null;
-    db.query("INSERT INTO memochip (notebook_id, id, content, photo_url) VALUES (?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageURL], (err, result) => {
+    const detail_content = req.body.detail_content;
+    db.query("INSERT INTO memochip (notebook_id, id, content, photo_url, detail_content) VALUES (?, ?, ?, ?, ?)", [notebook_id, req.session.userId, content, imageURL, detail_content], (err, result) => {
         if (err) {
         console.log(err);
         res.status(500).send(err);
