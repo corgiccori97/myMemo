@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { DraggableData, ResizableDelta, Rnd } from 'react-rnd';
 import { useParams } from 'react-router';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { atomTheme, isListChanged } from '../atoms';
 import Modal from './ChipModal';
 
-interface ChipProps {
+export interface ChipProps {
     content?:string;
     detail_content?: string;
     chip_id: number;
@@ -39,6 +39,7 @@ export function Chip({content, detail_content, chip_id, index, photo_url, create
     };
 
     const handleSize = (e:any, dir:any, ref:HTMLElement, delta:ResizableDelta) => {
+        console.log(ref.style.width, ref.style.height);
         if (dir === 'left' || dir === 'right') return;
         // 폰트 사이즈 deltaRatio에 따라 변경하기
         let newFontSize = 0;
@@ -126,7 +127,7 @@ export function Chip({content, detail_content, chip_id, index, photo_url, create
             ) }
             {/* 마우스 올렸을 때 created_time, 상세 내용 나오게 수정 */}            
             <div 
-            className="invisible group-hover:visible text-xs text-white bg-gray-400 w-1/2 mx-auto mt-2 rounded-lg break-words">
+            className="invisible group-hover:visible text-xs text-white bg-gray-400 w-1/2 mx-auto mt-2 rounded-lg break-words p-1">
                 <p className="font-bold text-sm">{ detail_content }</p>
                 <span className="text-xs">{ created_time.split("T")[0] }</span>
             </div>
@@ -153,6 +154,7 @@ export function Chip({content, detail_content, chip_id, index, photo_url, create
         isOpen={editState}
         onClose={() => setEditState(false)}
         content={content}
+        detailContent={detail_content}
         image={photo_url}
         chip_id={chip_id}
         />

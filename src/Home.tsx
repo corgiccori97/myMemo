@@ -77,7 +77,7 @@ function Home() {
             {notebooks.map((notebook) => (
                 <div 
                 key={notebook.notebook_id}
-                className="m-2 p-2 rounded-xl cursor-pointer hover:font-extrabold hover:bg-green-100 hover:opacity-80 stamp-effect">
+                className="m-2 p-2 rounded-xl cursor-pointer hover:font-extrabold hover:bg-yellow-100 hover:opacity-80 stamp-effect">
 
                     <Link
                     key={notebook.notebook_id} 

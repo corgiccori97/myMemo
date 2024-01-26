@@ -166,7 +166,8 @@ const Modal = ({ usage, notebook_id, isOpen, onClose, content, detailContent, im
                 {...register("content", {
                     required: false
                 })}
-                maxLength={200}>
+                maxLength={200}
+                >
                     { content }
                 </textarea>
                 <textarea

@@ -33,6 +33,7 @@ export default function Addbtn(props:propsInfo) {
         isOpen={add} 
         onClose={() => setAdd(false) }
         content=""
+        detailContent=""
         image=""
         />
         </>

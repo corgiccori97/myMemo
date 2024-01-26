@@ -3,13 +3,15 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { atomTheme } from '../atoms';
+import ListedChips from './ListedChips';
 
 interface EditMenuProps {
     onCopyClicked: () => void;
     onFlipClicked: (state:boolean) => void;
+    onListViewClicked: (state:boolean) => void;
 }
 
-const EditMenu = ({ onCopyClicked, onFlipClicked }:EditMenuProps) => {
+const EditMenu = ({ onCopyClicked, onFlipClicked, onListViewClicked }:EditMenuProps) => {
     const [flipped, setFlipped] = useState(false);
     const toggleFlipped = () => {
         setFlipped(prev => !prev);
@@ -22,6 +24,12 @@ const EditMenu = ({ onCopyClicked, onFlipClicked }:EditMenuProps) => {
     const [theme, setTheme] = useRecoilState(atomTheme);
     const toggleDarkMode = () => {
         setTheme(theme === "light" ? "dark" : "light");
+    };
+    // 리스트로 보기
+    const [listView, setListView] = useState(false);
+    const toggleListView = () => {
+        setListView(prev => !prev);
+        onListViewClicked(listView);
     };
 
     // 노트북 삭제
@@ -50,7 +58,7 @@ const EditMenu = ({ onCopyClicked, onFlipClicked }:EditMenuProps) => {
     return (
         <>
         <div
-        className="flex space-x-3 items-center justify-center absolute text-gray-500 rounded-md">
+        className="flex space-x-1 items-center justify-center absolute text-gray-500 rounded-md">
             <button onClick={toggleFlipped}
             className="w-10 h-10 cursor-pointer stamp-effect p-2">
                 <svg 
@@ -82,6 +90,12 @@ const EditMenu = ({ onCopyClicked, onFlipClicked }:EditMenuProps) => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"></path>
                     </svg>
                 )}
+            </button>
+            <button onClick={toggleListView}
+            className="w-10 h-10 p-2 stamp-effect cursor-pointer">
+                <svg data-slot="icon" fill="none" strokeWidth="1" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"></path>
+                </svg>
             </button>
             <button className="w-10 h-10 stamp-effect rounded-full z-10 p-2"
             onClick={() => setOpen(prev => !prev)}>
@@ -141,7 +155,6 @@ const EditMenu = ({ onCopyClicked, onFlipClicked }:EditMenuProps) => {
                 </motion.div>
                 }
             </AnimatePresence>
-
         </div> 
         </>
 

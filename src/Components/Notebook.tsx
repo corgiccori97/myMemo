@@ -7,6 +7,7 @@ import { useRecoilValue  } from 'recoil';
 import { atomTheme, isListChanged } from '../atoms';
 import html2canvas from 'html2canvas';
 import { AnimatePresence, motion } from 'framer-motion';
+import ListedChips from './ListedChips';
 
 interface ChipProps {
     content?: string; 
@@ -27,7 +28,7 @@ const Notebook = () => {
     const [flipped, setFlipped] = useState<boolean>(true);
     const setFlippedState = (state:boolean) => {
         setFlipped(state);
-    }
+    };
     // id 이용해서 memochip들 가져오기
     let { id }= useParams();
     const idNumber = parseInt(id!);
@@ -99,6 +100,7 @@ const Notebook = () => {
 
     // 크기 설정
     const handleSizeChange = (index:number, size:number, width: string, height: string) => {
+        console.log(width, height);
         let dummyFontSize = [...fontSizes];
         let dummyElementSize = [...elementSizes];
         dummyFontSize[index] = size + "";
@@ -129,12 +131,18 @@ const Notebook = () => {
         };
     };
 
+    const [listView, setListView] = useState(false);
+    const setListViewState = (state:boolean) => {
+        setListView(state);
+    };
+
     return (
         <>
         {/* 노트북 접고 펴는 버튼, 수정 삭제 버튼 등 bar */}
         <EditMenu 
         onCopyClicked={clipboardDownload}
         onFlipClicked={setFlippedState} 
+        onListViewClicked={setListViewState}
         />
         {/* boundary 영역 시작 */}
         <div 
@@ -195,6 +203,10 @@ const Notebook = () => {
                 />     
             </div>
         }
+        <ListedChips 
+        isOpen={listView}
+        chipList={chips} 
+        />
         </>
     ); 
 }

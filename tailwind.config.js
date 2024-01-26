@@ -8,9 +8,8 @@ module.exports = {
     extend: {
       backgroundImage: {
         'default': "url('/src/assets/background.JPG')"
-      }
+      },
     },
-    
     fontFamily: {
       heading: ['Londrina Outline', 'cursive'],
       body: ['Shrikhand', 'cursive'],
@@ -20,5 +19,6 @@ module.exports = {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   plugins: [],
+  darkMode: 'class',
 }
 
