@@ -57,27 +57,29 @@ export function Chip({content, detail_content, chip_id, index, photo_url, create
 
     // 삭제
     const deleteChip = (chip_id:number) => {
-        try {
-            fetch('http://localhost:3001/delete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify([notebook_id, chip_id])              
-            })
-            .then((res) => {
-                if (res.ok) {
-                    alert("삭제되었어요.");
-                    // 로컬스토리지 삭제
-                    deleteLocalStorageValue('font_size_chip', local_font_size);
-                    deleteLocalStorageValue('element_size_chip', local_element_size);
-                    deleteLocalStorageValue('position_chip', local_position);
-                    setDeleted(`deleted:${chip_id}`)
-                }
-            })
-        } catch(err) {
-            alert(err);
+        if (window.confirm("정말 삭제하시겠어요?")) {
+            try {
+                fetch('http://localhost:3001/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify([notebook_id, chip_id])              
+                })
+                .then((res) => {
+                    if (res.ok) {
+                        alert("삭제되었어요.");
+                        // 로컬스토리지 삭제
+                        deleteLocalStorageValue('font_size_chip', local_font_size);
+                        deleteLocalStorageValue('element_size_chip', local_element_size);
+                        deleteLocalStorageValue('position_chip', local_position);
+                        setDeleted(`deleted:${chip_id}`)
+                    }
+                })
+            } catch(err) {
+                alert(err);
+            }
         }
     };
     localStorage.removeItem('size_chip');
